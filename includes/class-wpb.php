@@ -99,28 +99,39 @@ class Wpb {
 	 */
 	private function load_dependencies() {
 
-		/**
-		 * The class responsible for orchestrating the actions and filters of the
-		 * core plugin.
-		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wpb-loader.php';
+		$includes = [
+			/**
+			 * The class responsible for orchestrating the actions and filters of the
+			 * core plugin.
+			 */
+			'includes/class-wpb-loader.php',
 
-		/**
-		 * The class responsible for defining internationalization functionality
-		 * of the plugin.
-		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wpb-i18n.php';
+			/**
+			 * The class responsible for defining internationalization functionality
+			 * of the plugin.
+			 */
+			'includes/class-wpb-i18n.php',
 
-		/**
-		 * The class responsible for defining all actions that occur in the admin area.
-		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-wpb-admin.php';
+			/**
+			 * The class responsible for defining all actions that occur in the admin area.
+			 */
+			'admin/class-wpb-admin.php',
 
-		/**
-		 * The class responsible for defining all actions that occur in the public-facing
-		 * side of the site.
-		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-wpb-public.php';
+			/**
+			 * The class responsible for defining all actions that occur in the public-facing
+			 * side of the site.
+			 */
+			'public/class-wpb-public.php',
+
+			/**
+			 * Plugin's helpers.
+			 */
+			'includes/class-wpb-helpers.php',
+		];
+
+		foreach ( $includes as $include ) {
+			require_once WPB_PLUGIN_MAIN_FILE . $include;
+		}
 
 		$this->loader = new Wpb_Loader();
 
