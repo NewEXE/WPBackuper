@@ -101,6 +101,11 @@ class Wpb {
 
 		$includes = [
 			/**
+			 * Plugin's helpers.
+			 */
+			'includes/class-wpb-helpers.php',
+
+			/**
 			 * The class responsible for orchestrating the actions and filters of the
 			 * core plugin.
 			 */
@@ -124,9 +129,9 @@ class Wpb {
 			'public/class-wpb-public.php',
 
 			/**
-			 * Plugin's helpers.
+			 * The class for performing backup of WP directory.
 			 */
-			'includes/class-wpb-helpers.php',
+			'includes/class-wpb-files-backuper.php',
 		];
 
 		foreach ( $includes as $include ) {
@@ -169,6 +174,8 @@ class Wpb {
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'add_admin_page' );
+
+		$this->loader->add_action( 'load-tools_page_' . Wpb_Admin::PAGE_KEY, $plugin_admin, 'download_backup' );
 
 	}
 

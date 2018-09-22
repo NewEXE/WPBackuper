@@ -116,4 +116,22 @@ class Wpb_Admin {
 
 	}
 
+	public function download_backup() {
+
+		//todo check nonce
+
+		if ( Wpb_Helpers::get_var( 'wpb_zip', false ) ) {
+			$files_backuper = Wpb_Files_Backuper::instance();
+
+			$files_backuper->make_backup();
+			$files_backuper->send_backup_to_browser_and_exit();
+		}
+	}
+
+	private function add_notice($message, $type = '', $only_on_plugin_page = false) {
+		if ( $only_on_plugin_page && ! Wpb_Helpers::is_plugin_page() ) {
+			return;
+		}
+	}
+
 }
