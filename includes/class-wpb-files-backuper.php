@@ -51,19 +51,12 @@ class Wpb_Files_Backuper {
 			return false;
 		}
 
-		/**
-		 * @var WP_Filesystem_Base $wp_filesystem
-		 */
-		global $wp_filesystem;
-
-		$dirlist = $wp_filesystem->dirlist($this->wp_dir, true, true);
-
-		$paths = $this->build_paths_list($dirlist);
+		$list_files = list_files($this->wp_dir);
 
 		if ( Wpb_Helpers::is_zip_archive_available() ) {
-			$this->create_archive_via_zip_archive($paths);
+			$this->create_archive_via_zip_archive($list_files);
 		} else {
-			$this->create_archive_via_pclzip($paths);
+			$this->create_archive_via_pclzip($list_files);
 		}
 	}
 
@@ -88,28 +81,8 @@ class Wpb_Files_Backuper {
 		exit;
 	}
 
-	private function build_paths_list($dirlist, $prevfiles = [], $path = '') {
-		if ( empty($path) ) {
-			$path = $this->wp_dir . '/';
-		}
+	public function send_backup_email() {
 
-		$pathes = $prevfiles;
-
-		foreach ( $dirlist as $data ) {
-			if ( $data['type'] === 'f' ) {
-				if ( substr($data['name'], -4) !== '.log' ) {
-					$pathes[] = $path . $data['name'];
-				}
-			} else {
-				if ( ! empty($data['files']) ) {
-					$pathes = array_merge($pathes, $this->build_paths_list($data['files'], $prevfiles, $path . $data['name'] . '/'));
-				} else {
-					$pathes[] = $path . $data['name'] . '/';
-				}
-			}
-		}
-
-		return $pathes;
 	}
 
 	private function create_archive_via_zip_archive($files) {
@@ -150,7 +123,7 @@ class Wpb_Files_Backuper {
 		return false;
 	}
 
-	private function create_archive_via_pclzip($paths) {
+	private function create_archive_via_pclzip($files) {
 		require_once(ABSPATH . 'wp-admin/includes/class-pclzip.php');
 
 //		$pclzip = new PclZip();

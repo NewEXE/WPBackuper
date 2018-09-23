@@ -132,6 +132,11 @@ class Wpb {
 			 * The class for performing backup of WP directory.
 			 */
 			'includes/class-wpb-files-backuper.php',
+
+			/**
+			 * The class for performing backup of WP directory.
+			 */
+			'includes/class-wpb-db-backuper.php',
 		];
 
 		foreach ( $includes as $include ) {
