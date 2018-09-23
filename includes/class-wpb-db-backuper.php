@@ -49,8 +49,8 @@ class Wpb_Db_Backuper {
 
 	public function send_backup_to_browser_and_exit() {
 
-		if ( ! Wpb_Helpers::connect_to_fs() ) {
-			return false;
+		if ( is_wp_error($maybe_error = Wpb_Helpers::connect_to_fs()) ) {
+			return $maybe_error;
 		}
 
 		/**

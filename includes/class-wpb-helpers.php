@@ -182,8 +182,8 @@ class Wpb_Helpers
 			return $is_bedrock;
 		}
 
-		if ( ! self::connect_to_fs() ) {
-			return false;
+		if ( is_wp_error($maybe_error = Wpb_Helpers::connect_to_fs()) ) {
+			return $maybe_error;
 		}
 
 		/**
@@ -211,7 +211,7 @@ class Wpb_Helpers
 		$credentials = request_filesystem_credentials('', '', false, '', null, false);
 
 		if( ! $credentials ) {
-			return new WP_Error('wpb_fs_credentials_fail', __('Filesystem credentials are incorrect', 'wpb'));
+			return new WP_Error('wpb_fs_credentials_fail', __('Please provide filesystem credentials', 'wpb'));
 		}
 
 		if( ! WP_Filesystem($credentials) ) {
@@ -251,6 +251,37 @@ class Wpb_Helpers
 	}
 
 	/**
+	 * @param string $property
+	 * @param mixed $default
+	 *
+	 * @return mixed|WP_User
+	 */
+	public static function safe_wp_get_current_user($property = null, $default = false) {
+		if (
+			function_exists('wp_get_current_user') &&
+			($user = wp_get_current_user()) instanceof WP_User
+		) {
+			if ( is_null($property) ) {
+				return $user;
+			} elseif ( ! empty($user->$property) ) {
+				return $user->$property;
+			} else {
+				return $default;
+			}
+		}
+
+		return $default;
+	}
+
+	public static function get_user_email($default = 'dummy@example.com') {
+		return Wpb_Helpers::safe_wp_get_current_user('user_email', $default);
+	}
+
+	public static function is_admin() {
+		return current_user_can('manage_options');
+	}
+
+	/**
 	 * @param $var
 	 * @param $method
 	 * @param string $default
@@ -287,4 +318,29 @@ class Wpb_Helpers
 		return $value;
 	}
 
+}
+
+/**
+ * Dump variable.
+ *
+ * @param mixed $data Any data
+ */
+function wpb_dump($data = null) {
+	echo '<pre>';
+	var_dump($data);
+	echo '</pre>';
+}
+
+/**
+ * Dump variable and die.
+ *
+ * @param mixed $data Any data
+ * @param bool $wp_die
+ */
+function wpb_dd($data = null, $wp_die = false) {
+	wpb_dump($data);
+	if ( $wp_die ) {
+		wp_die();
+	}
+	exit(0);
 }

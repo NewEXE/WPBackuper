@@ -42,7 +42,9 @@ class Wpb_Admin_Sanitizator {
 		$value = Wpb_Helpers::sanitize($value);
 
 		if ( ! is_email($value) ) {
-			return get_option('admin_email');
+			$user_email = Wpb_Helpers::get_user_email();
+
+			return $user_email;
 		}
 
 		return $value;

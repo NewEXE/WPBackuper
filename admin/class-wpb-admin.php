@@ -12,10 +12,15 @@
  */
 class Wpb_Admin {
 
+	// Pages
 	const PAGE_KEY      = 'wpb-settings';
 
+	// Tabs
 	const TAB_GENERAL   = self::PAGE_KEY . '-general';
 	const TAB_CRON      = self::PAGE_KEY . '-cron';
+
+	// Options
+	const OPTION_BACKUP_EMAIL = 'wpb_backup_email';
 
 	public function __construct( ) {  }
 
@@ -107,8 +112,14 @@ class Wpb_Admin {
 		if ( Wpb_Helpers::get_var( 'wpb_files_zip', false ) ) {
 			$files_backuper = Wpb_Files_Backuper::instance();
 
-			$files_backuper->make_backup();
-			$files_backuper->send_backup_to_browser_and_exit();
+			if ( is_wp_error($maybe_error = $files_backuper->make_backup()) ) {
+				wp_die($maybe_error);
+			}
+
+			if ( is_wp_error($maybe_error = $files_backuper->send_backup_to_email()) ) {
+				wp_die($maybe_error);
+			}
+
 		}
 
 		if ( Wpb_Helpers::get_var( 'wpb_db_zip', false ) ) {
@@ -148,12 +159,12 @@ class Wpb_Admin {
 
 	private function display_tab_general() {
 
-		$view_general_args = [
+		$view_args = [
 			'settings_general'  => self::TAB_GENERAL,
 			'section_general'   => self::TAB_GENERAL . '-general',
 		];
 
-		echo self::render('tab-general', $view_general_args);
+		echo self::render('tab-general', $view_args);
 	}
 
 	private function display_footer() {
@@ -163,9 +174,9 @@ class Wpb_Admin {
 	private function register_settings_general() {
 
 		$section_id = self::TAB_GENERAL . '-general';
-		$field_backup_email = 'wpb_backup_email';
+		$field_backup_email = self::OPTION_BACKUP_EMAIL;
 
-		$default_email = get_option('admin_email');
+		$default_email = Wpb_Helpers::get_user_email();
 
 		add_settings_section(
 			$section_id,
