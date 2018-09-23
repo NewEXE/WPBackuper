@@ -1,7 +1,9 @@
 <?php
 
 /**
- * The plugin bootstrap file
+ * The plugin bootstrap file.
+ * The plugin is built on the WordPress Plugin Boilerplate skeleton:
+ * @see https://github.com/DevinVinson/WordPress-Plugin-Boilerplate
  *
  * This file is read by WordPress to generate the plugin information in the plugin
  * admin area. This file also includes all of the dependencies used by the plugin,
@@ -30,43 +32,24 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-/**
- * Currently plugin version.
- * Start at version 1.0.0 and use SemVer - https://semver.org
- * Rename this for your plugin and update it as you release new versions.
- */
 define( 'WPB_VERSION', '1.0.0' );
-
 define( 'WPB_PLUGIN_MAIN_DIR', plugin_dir_path( __FILE__ ) );
-
 define( 'WPB_PLUGIN_MAIN_FILE', __FILE__ );
 
 /**
- * The code that runs during plugin activation.
- * This action is documented in includes/class-wpb-activator.php
+ * Fired during plugin activation.
  */
 function activate_wpb() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-wpb-activator.php';
-	Wpb_Activator::activate();
 }
 
 /**
- * The code that runs during plugin deactivation.
- * This action is documented in includes/class-wpb-deactivator.php
+ * Fired during plugin deactivation.
  */
 function deactivate_wpb() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-wpb-deactivator.php';
-	Wpb_Deactivator::deactivate();
 }
 
 register_activation_hook( __FILE__, 'activate_wpb' );
 register_deactivation_hook( __FILE__, 'deactivate_wpb' );
-
-/**
- * The core plugin class that is used to define internationalization,
- * admin-specific hooks, and public-facing site hooks.
- */
-require WPB_PLUGIN_MAIN_DIR . 'includes/class-wpb.php';
 
 /**
  * Begins execution of the plugin.
@@ -79,8 +62,11 @@ require WPB_PLUGIN_MAIN_DIR . 'includes/class-wpb.php';
  */
 function run_wpb() {
 
+	// The core plugin class.
+	require WPB_PLUGIN_MAIN_DIR . 'includes/class-wpb.php';
+
 	$plugin = new Wpb();
 	$plugin->run();
-
 }
+
 run_wpb();
