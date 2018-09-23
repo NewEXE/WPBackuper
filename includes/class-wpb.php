@@ -140,14 +140,12 @@ class Wpb {
 	 */
 	private function load_dependencies() {
 
+		/**
+		 * Plugin's helpers.
+		 */
 		require_once WPB_PLUGIN_MAIN_DIR . 'includes/class-wpb-helpers.php';
 
 		$includes = [
-			/**
-			 * Plugin's helpers.
-			 */
-			'includes/class-wpb-helpers.php',
-
 			/**
 			 * The class responsible for orchestrating the actions and filters of the
 			 * core plugin.
