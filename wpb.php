@@ -37,7 +37,9 @@ if ( ! defined( 'WPINC' ) ) {
  */
 define( 'WPB_VERSION', '1.0.0' );
 
-define( 'WPB_PLUGIN_MAIN_FILE', plugin_dir_path( __FILE__ ) );
+define( 'WPB_PLUGIN_MAIN_DIR', plugin_dir_path( __FILE__ ) );
+
+define( 'WPB_PLUGIN_MAIN_FILE', __FILE__ );
 
 /**
  * The code that runs during plugin activation.
@@ -64,7 +66,7 @@ register_deactivation_hook( __FILE__, 'deactivate_wpb' );
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
-require WPB_PLUGIN_MAIN_FILE . 'includes/class-wpb.php';
+require WPB_PLUGIN_MAIN_DIR . 'includes/class-wpb.php';
 
 /**
  * Begins execution of the plugin.

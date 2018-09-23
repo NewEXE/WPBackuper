@@ -10,6 +10,20 @@ class Wpb_Helpers
 {
 	private function __construct() { }
 
+	public static function path($path = '') {
+
+		$path = ltrim($path, '/');
+
+		return WPB_PLUGIN_MAIN_DIR . $path;
+	}
+
+	public static function url($path = '') {
+
+		$path = ltrim($path, '/');
+
+		return plugin_dir_url(WPB_PLUGIN_MAIN_FILE) . $path;
+	}
+
 	/**
 	 * Inverse function to parse_url.
 	 *
@@ -49,7 +63,7 @@ class Wpb_Helpers
 	}
 
 	/**
-	 * Clean variables using sanitize_textarea_field. Arrays are cleaned recursively.
+	 * Clean variables using sanitize_text_field. Arrays are cleaned recursively.
 	 * Non-scalar values are ignored.
 	 *
 	 * @param string|array $var Data to sanitize.
@@ -60,7 +74,7 @@ class Wpb_Helpers
 		if ( is_array( $var ) ) {
 			return array_map( 'self::sanitize', $var );
 		} else {
-			return is_scalar( $var ) ? sanitize_textarea_field( $var ) : $var;
+			return is_scalar( $var ) ? sanitize_text_field( $var ) : $var;
 		}
 	}
 
@@ -129,10 +143,7 @@ class Wpb_Helpers
 
 		if ( function_exists('get_current_screen') ) {
 			$screen = get_current_screen();
-
-			if ( $screen instanceof WP_Screen && isset($screen->id) ) {
-				$is_plugin_page = $screen->id === ('tools_page_' . Wpb_Admin::PAGE_KEY);
-			}
+			$is_plugin_page = $screen->id === ('tools_page_' . Wpb_Admin::PAGE_KEY);
 		} else {
 			// If get_current_screen() is not available
 			$parsed = @parse_url(self::server_var('REQUEST_URI'));
@@ -151,38 +162,6 @@ class Wpb_Helpers
 		}
 
 		return $is_plugin_page;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public static function is_frontend_ajax()
-	{
-		//Try to figure out if frontend AJAX request... If we are DOING_AJAX; let's look closer
-		if( defined('DOING_AJAX') && DOING_AJAX ) {
-			//From wp-includes/functions.php, wp_get_referer() function.
-			//Required to fix: https://core.trac.wordpress.org/ticket/25294
-			$ref = '';
-			$wp_http_ref = self::server_var('_wp_http_referer');
-			if ( ! empty($wp_http_ref) ) {
-				$ref = $wp_http_ref;
-			} else {
-				$http_ref = self::server_var('HTTP_REFERER');
-				if ( ! empty($http_ref) ) {
-					$ref = $http_ref;
-				}
-			}
-			$ref = stripslashes((string) $ref);
-
-			$script_filename = self::server_var('SCRIPT_FILENAME');
-
-			//If referer does not contain admin URL and we are using the admin-ajax.php endpoint, this is likely a frontend AJAX request
-			if( (strpos($ref, admin_url()) === false && basename($script_filename) === 'admin-ajax.php') )
-				return true;
-		}
-
-		//If no checks triggered, we end up here - not an AJAX request.
-		return false;
 	}
 
 	/**
@@ -260,8 +239,8 @@ class Wpb_Helpers
 		}
 
 		$disabled_functions = explode(',', ini_get('disable_functions'));
-		if (! in_array('exec', $disabled_functions) ) {
-			if (! @exec('echo WORKS') === 'WORKS') {
+		if ( ! in_array('exec', $disabled_functions) ) {
+			if ( ! @exec('echo WORKS') === 'WORKS' ) {
 				$exec_enabled = false;
 				return $exec_enabled;
 			}

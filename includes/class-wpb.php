@@ -77,7 +77,6 @@ class Wpb {
 		$this->load_dependencies();
 		$this->set_locale();
 		$this->define_admin_hooks();
-		$this->define_public_hooks();
 
 	}
 
@@ -89,7 +88,6 @@ class Wpb {
 	 * - Wpb_Loader. Orchestrates the hooks of the plugin.
 	 * - Wpb_i18n. Defines internationalization functionality.
 	 * - Wpb_Admin. Defines all hooks for the admin area.
-	 * - Wpb_Public. Defines all hooks for the public side of the site.
 	 *
 	 * Create an instance of the loader which will be used to register the hooks
 	 * with WordPress.
@@ -98,6 +96,8 @@ class Wpb {
 	 * @access   private
 	 */
 	private function load_dependencies() {
+
+		require_once WPB_PLUGIN_MAIN_DIR . 'includes/class-wpb-helpers.php';
 
 		$includes = [
 			/**
@@ -123,10 +123,9 @@ class Wpb {
 			'admin/class-wpb-admin.php',
 
 			/**
-			 * The class responsible for defining all actions that occur in the public-facing
-			 * side of the site.
+			 * The class responsible for defining all actions that occur in the admin area.
 			 */
-			'public/class-wpb-public.php',
+			'admin/class-wpb-admin-sanitizator.php',
 
 			/**
 			 * The class for performing backup of WP directory.
@@ -140,11 +139,10 @@ class Wpb {
 		];
 
 		foreach ( $includes as $include ) {
-			require_once WPB_PLUGIN_MAIN_FILE . $include;
+			require_once Wpb_Helpers::path($include);
 		}
 
 		$this->loader = new Wpb_Loader();
-
 	}
 
 	/**
@@ -157,11 +155,9 @@ class Wpb {
 	 * @access   private
 	 */
 	private function set_locale() {
-
 		$plugin_i18n = new Wpb_i18n();
 
 		$this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
-
 	}
 
 	/**
@@ -172,32 +168,18 @@ class Wpb {
 	 * @access   private
 	 */
 	private function define_admin_hooks() {
-
-		$plugin_admin = new Wpb_Admin( $this->get_plugin_name(), $this->get_version() );
+		$plugin_admin = new Wpb_Admin();
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
-		$this->loader->add_action( 'admin_menu', $plugin_admin, 'add_admin_page' );
+		$this->loader->add_action( 'admin_menu', $plugin_admin, 'add_management_page' );
+		$this->loader->add_action( 'admin_init', $plugin_admin, 'register_settings' );
+
+		$plugin_file = plugin_basename(WPB_PLUGIN_MAIN_FILE);
+		$this->loader->add_filter( 'plugin_action_links_' . $plugin_file, $plugin_admin, 'add_settings_link' );
 
 		$this->loader->add_action( 'load-tools_page_' . Wpb_Admin::PAGE_KEY, $plugin_admin, 'download_backup' );
-
-	}
-
-	/**
-	 * Register all of the hooks related to the public-facing functionality
-	 * of the plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 */
-	private function define_public_hooks() {
-
-		$plugin_public = new Wpb_Public( $this->get_plugin_name(), $this->get_version() );
-
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
-
 	}
 
 	/**
