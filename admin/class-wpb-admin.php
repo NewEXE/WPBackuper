@@ -18,6 +18,7 @@ class Wpb_Admin {
 	// Tabs
 	const TAB_GENERAL   = self::PAGE_KEY . '-general';
 	const TAB_CRON      = self::PAGE_KEY . '-cron';
+	const TAB_STATUS    = self::PAGE_KEY . '-status';
 
 	// Options
 	const OPTION_BACKUP_EMAIL = 'wpb_backup_email';
@@ -96,6 +97,9 @@ class Wpb_Admin {
 			case self::TAB_CRON:
 				$this->display_tab_cron();
 				break;
+			case self::TAB_STATUS:
+				$this->display_tab_status();
+				break;
 			case self::TAB_GENERAL:
 			default:
 				$this->display_tab_general();
@@ -135,6 +139,7 @@ class Wpb_Admin {
 		$tabs = [
 			self::TAB_GENERAL   => __('General', 'wpb'),
 			self::TAB_CRON      => __('Cron Schedule', 'wpb'),
+			self::TAB_STATUS    => __('System Status', 'wpb'),
 		];
 		$page_key = self::PAGE_KEY;
 
@@ -155,6 +160,44 @@ class Wpb_Admin {
 		];
 
 		echo self::render('tab-cron', $view_args);
+	}
+
+	private function display_tab_status() {
+
+		$items = [
+			[
+				'name'              => 'FS connected',
+				'hint'              => 'Is successfully connected to filesystem?',
+				'true'              => ! is_wp_error(Wpb_Helpers::connect_to_fs()),
+				'description_true'  => 'Yes',
+				'description_false' => 'No',
+			],
+			[
+				'name'              => 'ZipArchive',
+				'hint'              => 'Is ZipArchive PHP library available?',
+				'true'              => Wpb_Helpers::is_zip_archive_available(),
+				'description_true'  => 'Available',
+				'description_false' => 'Not available. Using PclZip instead',
+			],
+			[
+				'name'              => 'exec()',
+				'hint'              => 'Is PHP function exec() is available and allowed for execution',
+				'true'              => Wpb_Helpers::is_exec_available(),
+				'description_true'  => 'Available and allowed',
+				'description_false' => 'Not available and (or) not allowed. Using $wpdb instead',
+			],
+			[
+				'name'              => 'Is Bedrock?',
+				'hint'              => 'WP was installed with Bedrock or no?',
+				'true'              => Wpb_Helpers::is_bedrock(),
+				'description_true'  => 'Bedrock WP installation',
+				'description_false' => 'Normal WP installation',
+			],
+		];
+
+		$view_args = compact('items');
+
+		echo self::render('tab-status', $view_args);
 	}
 
 	private function display_tab_general() {
@@ -221,9 +264,9 @@ class Wpb_Admin {
 			extract($args);
 		}
 
-		ob_start();
+		//ob_start();
 		include Wpb_Helpers::path("admin/partials/$template_name.php");
-		return ob_get_clean();
+		//return ob_get_clean();
 	}
 
 	/**

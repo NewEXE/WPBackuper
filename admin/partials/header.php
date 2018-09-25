@@ -1,4 +1,4 @@
-<div class="wrap cmb2-options-page <?php echo $page_key ?>">
+<div class="wrap <?php echo $page_key ?>">
     <h2><?php echo esc_html( get_admin_page_title() ); ?></h2>
 
     <h2 class="nav-tab-wrapper">
