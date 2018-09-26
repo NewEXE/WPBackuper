@@ -97,9 +97,96 @@ class Wpb_Db_Backuper {
 	}
 
 	/**
-	 * @return WP_Error
+	 * Backup the whole database or just some tables
+	 * Use '*' for whole database or 'table1 table2 table3...'
+	 * @param string $tables
 	 */
-	private function create_archive_via_wpdb() {
-		return new WP_Error('db_backuper_wpdb_stub', __('Archivation via wpdb not supported for now... ', 'wpb'));
+	private function create_archive_via_wpdb($tables = '*') {
+		/** @var wpdb $wpdb */
+		global $wpdb;
+
+		$batchSize = 1000;
+
+		// Tables to export
+		if( $tables == '*' ) {
+			$tables = [];
+			$result = $wpdb->get_results('SHOW TABLES', ARRAY_N);
+
+			foreach ( $result as $table ) {
+				$tables[] = $table[0];
+			}
+		} else {
+			$tables = is_array($tables) ? $tables : explode(',', str_replace(' ', '', $tables));
+		}
+		$sql = 'CREATE DATABASE IF NOT EXISTS `'.$wpdb->dbname."`;\n\n";
+		$sql .= 'USE `'.$wpdb->dbname."`;\n\n";
+
+		// Iterate tables
+		foreach($tables as $table) {
+
+			// CREATE TABLE
+			$sql .= 'DROP TABLE IF EXISTS `'.$table.'`;';
+			$row = $wpdb->get_row('SHOW CREATE TABLE `'.$table.'`', ARRAY_N);
+
+			$sql .= "\n\n".$row[1].";\n\n";
+
+
+			$row = $wpdb->get_row('SELECT COUNT(*) FROM `'.$table.'`', ARRAY_N);
+			$numRows = (int) $row[0];
+
+			if ( $numRows === 0 ) {
+				continue; // We don't need insert into, because table is empty
+			}
+
+			// INSERT INTO
+
+			// Split table in batches in order to not exhaust system memory
+			$numBatches = intval($numRows / $batchSize) + 1; // Number of for-loop calls to perform
+
+			for ($b = 1; $b <= $numBatches; $b++) {
+
+				$query = 'SELECT * FROM `' . $table . '` LIMIT ' . ($b * $batchSize - $batchSize) . ',' . $batchSize;
+				$result = $wpdb->get_results($query, ARRAY_N);
+
+				$realBatchSize = count($result); // Last batch size can be different from $batchSize
+				$numFields = count($result[0]);
+				if ($realBatchSize !== 0) {
+					$sql .= 'INSERT INTO `'.$table.'` VALUES ' . "\n";
+
+					$rowCount = 1;
+					foreach ($result as $row) {
+						$sql.='(';
+						for($i = 0; $i < $numFields; $i++) {
+							if ( isset($row[$i]) ) {
+								$row[$i] = addslashes($row[$i]);
+								$row[$i] = str_replace("\n","\\n",$row[$i]);
+								$sql .= '"'.$row[$i].'"' ;
+							} else {
+								$sql.= 'NULL';
+							}
+
+							if ($i < ($numFields-1)) {
+								$sql .= ',';
+							}
+						}
+
+						if ( $rowCount === $realBatchSize ) {
+							$rowCount = 0;
+							$sql.= ");\n"; //close the insert statement
+						} else {
+							$sql.= "),\n"; //close the row
+						}
+						$rowCount++;
+					}
+
+
+				}
+			}
+
+			$sql.="\n\n";
+		}
+
+		wpb_dd($sql);
 	}
+
 }
