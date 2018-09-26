@@ -111,26 +111,21 @@ class Wpb_Admin {
 
 	public function download_backup() {
 
-		//todo check nonce
+		$backup_files = Wpb_Helpers::post_var('wpb_backup_files', false);
+		$backup_db = Wpb_Helpers::post_var('wpb_backup_db', false);
 
-		if ( Wpb_Helpers::get_var( 'wpb_files_zip', false ) ) {
-			$files_backuper = Wpb_Files_Backuper::instance();
+		if ( Wpb_Helpers::is_plugin_page(self::TAB_GENERAL) && ($backup_files xor $backup_db) ) {
+			check_admin_referer('wpb_make_backup', 'wpb_make_backup');
 
-			if ( is_wp_error($maybe_error = $files_backuper->make_backup()) ) {
+			$backuper = $backup_files ? Wpb_Files_Backuper::instance() : Wpb_Db_Backuper::instance();
+
+			if ( is_wp_error($maybe_error = $backuper->make_backup()) ) {
 				wp_die($maybe_error);
 			}
 
-			if ( is_wp_error($maybe_error = $files_backuper->send_backup_to_email()) ) {
+			if ( is_wp_error($maybe_error = $backuper->send_backup_to_browser_and_exit()) ) {
 				wp_die($maybe_error);
 			}
-
-		}
-
-		if ( Wpb_Helpers::get_var( 'wpb_db_zip', false ) ) {
-			$db_backuper = Wpb_Db_Backuper::instance();
-
-			$db_backuper->make_backup();
-			$db_backuper->send_backup_to_browser_and_exit();
 		}
 	}
 
@@ -201,6 +196,22 @@ class Wpb_Admin {
 				'description_false' => __('Bedrock WP installation', 'wpb'),
 			],
 		];
+		if ( ! is_wp_error(Wpb_Helpers::connect_to_fs()) ) {
+
+			$tmp_dir = get_temp_dir();
+
+			$items[] = [
+				'name'              => __('Directory for backups', 'wpb'),
+				'hint'              => 'Full path to temp directory for backups.',
+				'true'              => Wpb_Helpers::is_temp_dir_writable(),
+				'description_true'  =>
+				/* translators: %s: template name */
+					sprintf(__('Dir <b>%s</b> is exists and writable', 'wpb'), $tmp_dir),
+				'description_false'  =>
+				/* translators: %s: template name */
+					sprintf(__('Dir <b>%s</b> is NOT writable', 'wpb'), $tmp_dir),
+			];
+		}
 
 		$view_args = compact('items');
 

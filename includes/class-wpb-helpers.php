@@ -208,14 +208,14 @@ class Wpb_Helpers
 	 */
 	public static function connect_to_fs()  {
 
-		$credentials = request_filesystem_credentials('', '', false, '', null, false);
+		$credentials = request_filesystem_credentials('');
 
 		if( ! $credentials ) {
 			return new WP_Error('wpb_fs_credentials_fail', __('Please provide filesystem credentials', 'wpb'));
 		}
 
 		if( ! WP_Filesystem($credentials) ) {
-			request_filesystem_credentials('', '', true, '', null, false);
+			request_filesystem_credentials('', '', true);
 			return new WP_Error('wpb_fs_credentials_fail', __('Filesystem credentials are incorrect', 'wpb'));
 		}
 
@@ -248,6 +248,17 @@ class Wpb_Helpers
 
 		$exec_enabled = true;
 		return $exec_enabled;
+	}
+
+	public static function is_temp_dir_writable() {
+		if ( is_wp_error(Wpb_Helpers::connect_to_fs()) ) {
+			return false;
+		}
+
+		/** @var WP_Filesystem_Base $wp_filesystem */
+		global $wp_filesystem;
+
+		return $wp_filesystem->is_writable(get_temp_dir());
 	}
 
 	/**

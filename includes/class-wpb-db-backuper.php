@@ -38,12 +38,15 @@ class Wpb_Db_Backuper {
 		$this->backup_dir = get_temp_dir();
 	}
 
+	/**
+	 * @return true|WP_Error
+	 */
 	public function make_backup() {
 
 		if ( Wpb_Helpers::is_exec_available() ) {
-			$this->create_archive_via_exec();
+			return $this->create_archive_via_exec();
 		} else {
-			$this->create_archive_via_wpdb();
+			return $this->create_archive_via_wpdb();
 		}
 	}
 
@@ -72,6 +75,9 @@ class Wpb_Db_Backuper {
 
 	}
 
+	/**
+	 * @return true|WP_Error
+	 */
 	private function create_archive_via_exec() {
 		/** @var wpdb $wpdb */
 		global $wpdb;
@@ -82,7 +88,7 @@ class Wpb_Db_Backuper {
 
 		exec($cmd, $exec_output);
 		if ( ! empty($exec_output) ) {
-			return false;
+			return new WP_Error('db_backuper_exec_error', __('Something went wrong while executing "mysqldump"', 'wpb'));
 		} else {
 			$this->backup_file_path = $zip_file_path;
 		}
@@ -90,7 +96,10 @@ class Wpb_Db_Backuper {
 		return true;
 	}
 
+	/**
+	 * @return WP_Error
+	 */
 	private function create_archive_via_wpdb() {
-
+		return new WP_Error('db_backuper_wpdb_stub', __('Archivation via wpdb not supported for now... ', 'wpb'));
 	}
 }

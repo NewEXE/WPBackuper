@@ -55,6 +55,12 @@ class Wpb_Files_Backuper {
 		}
 
 		$list_files = list_files($this->wp_dir);
+		if ( ! $list_files ) {
+			return new WP_Error(
+				'files_backuper_list_files_error',
+				__('Something went wrong while getting list files for backup', 'wpb')
+			);
+		}
 
 		if ( Wpb_Helpers::is_zip_archive_available() ) {
 			return $this->create_archive_via_zip_archive($list_files);
@@ -117,10 +123,15 @@ class Wpb_Files_Backuper {
 		return true;
 	}
 
+	/**
+	 * @param $files
+	 *
+	 * @return true|WP_Error
+	 */
 	private function create_archive_via_zip_archive($files) {
 		$zip = new ZipArchive();
 
-		$zip_file_path = $this->backup_dir . 'wpb_backup_' . date('Y-m-d_H-i-s') . '.zip';
+		$zip_file_path = $this->backup_dir . 'wpb_files_backup_' . date('Y-m-d_H-i-s') . '.zip';
 		if ( $zip->open($zip_file_path, ZipArchive::CREATE | ZipArchive::OVERWRITE) ) {
 
 			if ( is_wp_error($maybe_error = Wpb_Helpers::connect_to_fs()) ) {
@@ -155,6 +166,11 @@ class Wpb_Files_Backuper {
 		return new WP_Error('files_backuper_za_error', __('Something went wrong while archivation via ZipArchive', 'wpb'));
 	}
 
+	/**
+	 * @param $files
+	 *
+	 * @return WP_Error
+	 */
 	private function create_archive_via_pclzip($files) {
 
 		return new WP_Error('files_backuper_pclzip_stub', __('Archivation via PclZip not supported for now... ', 'wpb'));
