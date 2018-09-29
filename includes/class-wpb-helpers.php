@@ -17,7 +17,30 @@ class Wpb_Helpers
 		return WPB_PLUGIN_MAIN_DIR . $path;
 	}
 
-	public static function url($path = '') {
+	public static function plugin_url($tab = null, $query_args = null) {
+
+		$url = admin_url(Wpb_Admin::PLUGIN_URL_BASE . '?page=' . Wpb_Admin::PAGE_KEY);
+
+		$q = [];
+		if ( ! is_null($tab) ) {
+			$q['tab'] = $tab;
+		}
+
+		if ( ! is_null($query_args) ) {
+			if ( ! is_array($query_args) ) {
+				$query_args = [$query_args];
+			}
+			$q = array_merge($query_args, $q);
+		}
+
+		if ( ! empty($q) ) {
+			$url = add_query_arg($q, $url);
+		}
+
+		return $url;
+	}
+
+	public static function asset_url($path = '') {
 
 		$path = ltrim($path, '/');
 
@@ -136,9 +159,10 @@ class Wpb_Helpers
 
 	/**
 	 * @param null|string $tab
+	 * @param array $query_args
 	 * @return bool
 	 */
-	public static function is_plugin_page($tab = null) {
+	public static function is_plugin_page($tab = null, $query_args = null) {
 		$is_plugin_page = false;
 
 		if ( function_exists('get_current_screen') ) {
@@ -149,7 +173,7 @@ class Wpb_Helpers
 			$parsed = @parse_url(self::server_var('REQUEST_URI'));
 
 			if ( ! empty($parsed['path']) ) {
-				if ( strpos($parsed['path'], 'wp-admin/tools.php') !== false ) {
+				if ( strpos($parsed['path'], 'wp-admin/' . Wpb_Admin::PLUGIN_URL_BASE) !== false ) {
 					if ( self::get_var('page') === Wpb_Admin::PAGE_KEY ) {
 						$is_plugin_page = true;
 					}
@@ -159,6 +183,12 @@ class Wpb_Helpers
 
 		if ( $is_plugin_page && ! is_null($tab) ) {
 			$is_plugin_page = ($tab === self::get_var('tab', Wpb_Admin::TAB_GENERAL));
+		}
+
+		if ( $is_plugin_page && is_array($query_args) ) {
+			$get = Wpb_Helpers::sanitize($_GET);
+			$intersected = array_intersect_assoc($get, $query_args);
+			$is_plugin_page = count($intersected) === count($query_args);
 		}
 
 		return $is_plugin_page;
@@ -220,6 +250,10 @@ class Wpb_Helpers
 		}
 
 		return true;
+	}
+
+	public static function is_fs_connected() {
+		return function_exists( 'WP_Filesystem' ) ? WP_Filesystem() : @is_writable(get_temp_dir());
 	}
 
 	public static function is_zip_archive_available() {

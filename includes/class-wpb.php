@@ -69,18 +69,13 @@ class Wpb {
 	public function __construct() {
 
 		$this->plugin_name = 'wpb';
-
-		if ( defined( 'WPB_VERSION' ) ) {
-			$this->version = WPB_VERSION;
-		} else {
-			$this->version = '1.0.0';
-		}
+		$this->version = WPB_VERSION;
 		$this->save_version_in_db();
 
 		$this->load_dependencies();
 		$this->set_locale();
 		$this->define_admin_hooks();
-
+		$this->define_admin_notices_hooks();
 	}
 
 	/**
@@ -169,6 +164,11 @@ class Wpb {
 			'admin/class-wpb-admin-sanitizator.php',
 
 			/**
+			 * The class for printing formatted notices messages.
+			 */
+			'admin/class-wpb-admin-notices.php',
+
+			/**
 			 * The class for performing backup of WP directory.
 			 */
 			'includes/class-wpb-files-backuper.php',
@@ -221,6 +221,11 @@ class Wpb {
 		$this->loader->add_filter( 'plugin_action_links_' . $plugin_file, $plugin_admin, 'add_settings_link' );
 
 		$this->loader->add_action( 'load-tools_page_' . Wpb_Admin::PAGE_KEY, $plugin_admin, 'download_backup' );
+	}
+
+	private function define_admin_notices_hooks() {
+		$admin_notices = new Wpb_Admin_Notices();
+		$this->loader->add_action('admin_notices', $admin_notices, 'maybe_add_fs_credentials_notice' );
 	}
 
 	/**

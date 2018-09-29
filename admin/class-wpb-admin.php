@@ -12,6 +12,9 @@
  */
 class Wpb_Admin {
 
+	// Used in plugin URL
+	const PLUGIN_URL_BASE = 'tools.php';
+
 	// Pages
 	const PAGE_KEY      = 'wpb-settings';
 
@@ -21,7 +24,8 @@ class Wpb_Admin {
 	const TAB_STATUS    = self::PAGE_KEY . '-status';
 
 	// Options
-	const OPTION_BACKUP_EMAIL = 'wpb_backup_email';
+	const OPTION_BACKUP_EMAIL   = 'wpb_backup_email';
+	const OPTION_IS_CRON_SET    = 'wpb_is_cron_set';
 
 	public function __construct( ) {  }
 
@@ -68,10 +72,8 @@ class Wpb_Admin {
 	 */
 	public function add_settings_link( $actions ) {
 
-		$url = admin_url('admin.php?page=' . self::PAGE_KEY);
-		$settings_label = __('Settings', 'wpb');
-		$link = "<a href='$url'>$settings_label</a>";
-		$actions[] = $link;
+		$actions[] = '<a href=' . '"' . Wpb_Helpers::plugin_url() . '"' . '>' . __('Settings', 'wpb') . '</a>';
+
 		return $actions;
 	}
 
@@ -114,7 +116,7 @@ class Wpb_Admin {
 		$backup_files = Wpb_Helpers::post_var('wpb_backup_files', false);
 		$backup_db = Wpb_Helpers::post_var('wpb_backup_db', false);
 
-		if ( Wpb_Helpers::is_plugin_page(self::TAB_GENERAL) && ($backup_files xor $backup_db) ) {
+		if ( ($backup_files xor $backup_db) && Wpb_Helpers::is_plugin_page(self::TAB_GENERAL) ) {
 			check_admin_referer('wpb_make_backup', 'wpb_make_backup');
 
 			$backuper = $backup_files ? Wpb_Files_Backuper::instance() : Wpb_Db_Backuper::instance();
@@ -159,6 +161,8 @@ class Wpb_Admin {
 
 	private function display_tab_status() {
 
+		$with_fs_info = ! Wpb_Helpers::is_fs_connected();
+
 		$items = [
 			[
 				'name'              => __('PHP version', 'wpb'),
@@ -170,7 +174,7 @@ class Wpb_Admin {
 			[
 				'name'              => __('FS connected', 'wpb'),
 				'hint'              => __('Is successfully connected to filesystem?', 'wpb'),
-				'true'              => ! is_wp_error(Wpb_Helpers::connect_to_fs()),
+				'true'              => Wpb_Helpers::is_fs_connected(),
 				'description_true'  => __('Yes', 'wpb'),
 				'description_false' => __('No', 'wpb'),
 			],
@@ -213,7 +217,7 @@ class Wpb_Admin {
 			];
 		}
 
-		$view_args = compact('items');
+		$view_args = compact('items', 'with_fs_info');
 
 		echo self::render('tab-status', $view_args);
 	}
@@ -330,13 +334,6 @@ class Wpb_Admin {
 		}
 
 		echo self::render("inputs/$type", $args);
-	}
-
-	private function add_notice($message, $type = '', $only_on_plugin_page = false) {
-
-		if ( $only_on_plugin_page && ! Wpb_Helpers::is_plugin_page() ) {
-			return;
-		}
 	}
 
 }

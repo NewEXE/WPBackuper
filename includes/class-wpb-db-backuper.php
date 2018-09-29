@@ -97,8 +97,12 @@ class Wpb_Db_Backuper {
 	}
 
 	/**
-	 * Backup the whole database or just some tables
+	 * Backup the whole database or just some tables.
 	 * Use '*' for whole database or 'table1 table2 table3...'
+	 *
+	 * Source:
+	 * @see https://github.com/daniloaz/myphp-backup/blob/master/myphp-backup.php
+	 *
 	 * @param string $tables
 	 */
 	private function create_archive_via_wpdb($tables = '*') {
@@ -178,8 +182,6 @@ class Wpb_Db_Backuper {
 						}
 						$rowCount++;
 					}
-
-
 				}
 			}
 
