@@ -47,6 +47,10 @@ class Wpb_Helpers
 		return plugin_dir_url(WPB_PLUGIN_MAIN_FILE) . $path;
 	}
 
+	public static function current_url() {
+		return home_url(add_query_arg(null, null));
+	}
+
 	/**
 	 * Inverse function to parse_url.
 	 *
@@ -212,8 +216,8 @@ class Wpb_Helpers
 			return $is_bedrock;
 		}
 
-		if ( is_wp_error($maybe_error = Wpb_Helpers::connect_to_fs()) ) {
-			return $maybe_error;
+		if ( ! Wpb_Helpers::connect_to_fs() ) {
+			return null;
 		}
 
 		/**
@@ -233,31 +237,106 @@ class Wpb_Helpers
 		return $is_bedrock;
 	}
 
-	/**
-	 * @return bool|WP_Error
-	 */
-	public static function connect_to_fs()  {
+	public static function get_filesystem_credentials_from_constants() {
+		$credentials = [];
 
-		$credentials = request_filesystem_credentials('');
+		$credentials['hostname']    = defined('FTP_HOST') ? FTP_HOST : '';
+		$credentials['username']    = defined('FTP_USER') ? FTP_USER : '';
+		$credentials['password']    = defined('FTP_PASS') ? FTP_PASS : '';
+		$credentials['public_key']  = defined('FTP_PUBKEY') ? FTP_PUBKEY : '';
+		$credentials['private_key'] = defined('FTP_PRIKEY') ? FTP_PRIKEY : '';
+
+		// Sanitize the hostname, some people might pass in odd-data.
+		// Strip any schemes off.
+		$credentials['hostname'] = preg_replace('|\w+://|', '', $credentials['hostname']);
+
+		if ( strpos($credentials['hostname'], ':') ) {
+			list( $credentials['hostname'], $credentials['port'] ) = explode(':', $credentials['hostname'], 2);
+			if ( ! is_numeric($credentials['port']) )
+				unset($credentials['port']);
+		} else {
+			unset($credentials['port']);
+		}
+
+		if ( function_exists('get_filesystem_method') ) {
+			$fs_method = get_filesystem_method();
+		} else {
+			$fs_method = defined('FS_METHOD') ? FS_METHOD : false;
+		}
+
+		if ( ( defined( 'FTP_SSH' ) && FTP_SSH ) || ( defined( 'FS_METHOD' ) && 'ssh2' == FS_METHOD ) ) {
+			$credentials['connection_type'] = 'ssh';
+		} elseif ( ( defined( 'FTP_SSL' ) && FTP_SSL ) && 'ftpext' == $fs_method ) {
+			// Only the FTP Extension understands SSL.
+			$credentials['connection_type'] = 'ftps';
+		} elseif ( ! isset( $credentials['connection_type'] ) ) {
+			// All else fails, default to FTP.
+			$credentials['connection_type'] = 'ftp';
+		}
+
+		return $credentials;
+	}
+
+	/**
+	 * Wrapper for request_filesystem_credentials.
+	 *
+	 * @param string $form_post
+	 *
+	 * @return bool
+	 */
+	public static function connect_to_fs($form_post = '')  {
+		if ( self::is_fs_connected() ) {
+			return true;
+		}
+
+		if ( empty($form_post) ) {
+			$form_post = Wpb_Helpers::current_url();
+		}
+
+		$credentials = request_filesystem_credentials($form_post);
 
 		if( ! $credentials ) {
-			return new WP_Error('wpb_fs_credentials_fail', __('Please provide filesystem credentials', 'wpb'));
+			return false;
 		}
 
 		if( ! WP_Filesystem($credentials) ) {
-			request_filesystem_credentials('', '', true);
-			return new WP_Error('wpb_fs_credentials_fail', __('Filesystem credentials are incorrect', 'wpb'));
+			request_filesystem_credentials($form_post, '', true);
+			return false;
 		}
 
 		return true;
 	}
 
 	public static function is_fs_connected() {
-		return function_exists( 'WP_Filesystem' ) ? WP_Filesystem() : @is_writable(get_temp_dir());
+		global $wp_filesystem;
+
+		if ( $wp_filesystem ) {
+			return true;
+		}
+
+		if ( function_exists('WP_Filesystem') ) {
+			return (bool) WP_Filesystem(self::get_filesystem_credentials_from_constants());
+		}
+
+		if ( function_exists('get_filesystem_method') ) {
+			return get_filesystem_method() === 'direct';
+		}
+
+		return @is_writable(get_temp_dir());
+	}
+
+	public static function get_wp_dir() {
+		return self::is_bedrock() ? dirname(get_home_path()) : get_home_path();
 	}
 
 	public static function is_zip_archive_available() {
 		return class_exists( 'ZipArchive', false );
+	}
+
+	public static function get_file_ext($path) {
+		$ext = @pathinfo($path, PATHINFO_EXTENSION);
+
+		return empty($ext) ? false : $ext;
 	}
 
 	public static function is_exec_available() {

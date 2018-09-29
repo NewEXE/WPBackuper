@@ -15,9 +15,15 @@ class Wpb_Db_Backuper {
 	 */
 	private static $instance = null;
 
-	private $backup_dir;
+	/**
+	 * @var Wpb_Archiver
+	 */
+	private $zipper;
 
-	private $backup_file_path = null;
+	/**
+	 * @var WP_Error
+	 */
+	private $errors;
 
 	/**
 	 * Get the class instance.
@@ -35,7 +41,12 @@ class Wpb_Db_Backuper {
 	}
 
 	private function __construct() {
-		$this->backup_dir = get_temp_dir();
+
+		$this->zipper = new Wpb_Zipper(
+			get_temp_dir(),
+			'wpb_sql_backup_' . date('Y-m-d_H-i-s') . '.sql.gz'
+		);
+		$this->errors = new WP_Error();
 	}
 
 	/**
@@ -52,8 +63,9 @@ class Wpb_Db_Backuper {
 
 	public function send_backup_to_browser_and_exit() {
 
-		if ( is_wp_error($maybe_error = Wpb_Helpers::connect_to_fs()) ) {
-			return $maybe_error;
+		if ( ! Wpb_Helpers::is_fs_connected() ) {
+			$this->errors->add('fs_not_connected', __('FS not connected', 'wpb'));
+			return false;
 		}
 
 		/**
@@ -61,13 +73,11 @@ class Wpb_Db_Backuper {
 		 */
 		global $wp_filesystem;
 
-		$file_name = basename($this->backup_file_path);
-
 		header('Content-Type: application/x-gzip');
-		header("Content-Disposition: attachment; filename=$file_name");
-		header('Content-Length: ' . $wp_filesystem->size($this->backup_file_path));
+		header('Content-Disposition: attachment; filename=' . $this->zipper->get_archive_filename());
+		header('Content-Length: ' . $wp_filesystem->size($this->zipper->get_archive_fullpath()));
 
-		echo $wp_filesystem->get_contents($this->backup_file_path);
+		echo $wp_filesystem->get_contents($this->zipper->get_archive_fullpath());
 		exit;
 	}
 
@@ -82,15 +92,14 @@ class Wpb_Db_Backuper {
 		/** @var wpdb $wpdb */
 		global $wpdb;
 
-		$zip_file_path = $this->backup_dir . 'wpb_sql_backup_' . date('Y-m-d_H-i-s') . '.sql.gz';
+		$zip_file_path = $this->zipper->get_archive_fullpath();
 		$cmd = "mysqldump --user={$wpdb->dbuser} --password={$wpdb->dbpassword} {$wpdb->dbname} | gzip --best > $zip_file_path";
 		$exec_output = [];
 
 		exec($cmd, $exec_output);
 		if ( ! empty($exec_output) ) {
-			return new WP_Error('db_backuper_exec_error', __('Something went wrong while executing "mysqldump"', 'wpb'));
-		} else {
-			$this->backup_file_path = $zip_file_path;
+			$this->errors->add('exec_error', __('Something went wrong while executing "mysqldump"', 'wpb'), $exec_output);
+			return false;
 		}
 
 		return true;
@@ -98,21 +107,28 @@ class Wpb_Db_Backuper {
 
 	/**
 	 * Backup the whole database or just some tables.
-	 * Use '*' for whole database or 'table1 table2 table3...'
+	 * Use '*' for whole database or array with tables names.
 	 *
 	 * Source:
 	 * @see https://github.com/daniloaz/myphp-backup/blob/master/myphp-backup.php
 	 *
-	 * @param string $tables
+	 * @param string|array $tables
+	 * @return bool
 	 */
 	private function create_archive_via_wpdb($tables = '*') {
+
+		if ( ! Wpb_Helpers::is_fs_connected() ) {
+			$this->errors->add('fs_not_connected', __('FS not connected', 'wpb'));
+			return false;
+		}
+
 		/** @var wpdb $wpdb */
 		global $wpdb;
 
 		$batchSize = 1000;
 
 		// Tables to export
-		if( $tables == '*' ) {
+		if( $tables === '*' || empty($tables) ) {
 			$tables = [];
 			$result = $wpdb->get_results('SHOW TABLES', ARRAY_N);
 
@@ -188,7 +204,29 @@ class Wpb_Db_Backuper {
 			$sql.="\n\n";
 		}
 
-		wpb_dd($sql);
+		/**
+		 * @var WP_Filesystem_Base $wp_filesystem
+		 */
+		global $wp_filesystem;
+
+		$sql_tmp_file = wp_tempnam('wpb_sql_backup_' . date('Y-m-d_H-i-s') . '.sql');
+
+		if ( ! $wp_filesystem->put_contents($sql_tmp_file, $sql) ) {
+			$this->errors->add('put_sql_to_tmp_error', __('Something went wrong while put sql content to temp file', 'wpb'), $sql_tmp_file);
+			$wp_filesystem->delete($sql_tmp_file);
+			return false;
+		}
+
+		$this->zipper->push_file($sql_tmp_file);
+
+		if ( ! $this->zipper->create_archive(get_temp_dir()) ) {
+			$wp_filesystem->delete($sql_tmp_file);
+			// todo find way for sharing errors from zipper
+			return false;
+		}
+
+		$wp_filesystem->delete($sql_tmp_file);
+		return true;
 	}
 
 }

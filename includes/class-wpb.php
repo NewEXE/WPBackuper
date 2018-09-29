@@ -153,6 +153,10 @@ class Wpb {
 			 */
 			'includes/class-wpb-i18n.php',
 
+			'includes/abstracts/interface-wpb-archiver.php',
+
+			'includes/class-wpb-zipper.php',
+
 			/**
 			 * The class responsible for defining all actions that occur in the admin area.
 			 */

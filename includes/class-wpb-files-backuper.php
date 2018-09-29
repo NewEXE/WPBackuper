@@ -15,11 +15,15 @@ class Wpb_Files_Backuper {
 	 */
 	private static $instance = null;
 
-	private $wp_dir;
+	/**
+	 * @var Wpb_Archiver
+	 */
+	private $zipper;
 
-	private $backup_dir;
-
-	private $backup_file_path = null;
+	/**
+	 * @var WP_Error
+	 */
+	private $errors;
 
 	/**
 	 * Get the class instance.
@@ -37,42 +41,54 @@ class Wpb_Files_Backuper {
 	}
 
 	private function __construct() {
-		$this->backup_dir = get_temp_dir();
-		$this->wp_dir = Wpb_Helpers::is_bedrock() ? dirname(get_home_path()) : get_home_path();
+		$this->zipper = new Wpb_Zipper(
+			get_temp_dir(),
+			'wpb_files_backup_' . date('Y-m-d_H-i-s') . '.zip'
+		);
+		$this->errors = new WP_Error();
 	}
 
 	public function get_backup_file_path() {
-		return $this->backup_file_path;
+		return $this->zipper->get_archive_fullpath();
 	}
 
 	/**
-	 * @return true|WP_Error
+	 * @return bool
 	 */
 	public function make_backup() {
 
-		if ( is_wp_error($maybe_error = Wpb_Helpers::connect_to_fs()) ) {
-			return $maybe_error;
+		if ( ! Wpb_Helpers::is_fs_connected() ) {
+			$this->errors->add('fs_not_connected', __('FS not connected', 'wpb'));
+			return false;
 		}
 
-		$list_files = list_files($this->wp_dir);
+		$wp_dir = Wpb_Helpers::get_wp_dir();
+		$list_files = list_files($wp_dir);
+
 		if ( ! $list_files ) {
-			return new WP_Error(
-				'files_backuper_list_files_error',
-				__('Something went wrong while getting list files for backup', 'wpb')
+			$this->errors->add(
+				'list_files_error',
+				__('Something went wrong while getting list files for backup', 'wpb'),
+				$list_files
 			);
+			return false;
 		}
 
-		if ( Wpb_Helpers::is_zip_archive_available() ) {
-			return $this->create_archive_via_zip_archive($list_files);
-		} else {
-			return $this->create_archive_via_pclzip($list_files);
+		$this->zipper->push_files($list_files);
+
+		if ( ! $this->zipper->create_archive($wp_dir) ) {
+			// todo find way for sharing errors from zipper
+			return false;
 		}
+
+		return true;
 	}
 
 	public function send_backup_to_browser_and_exit() {
 
-		if ( is_wp_error($maybe_error = Wpb_Helpers::connect_to_fs()) ) {
-			return $maybe_error;
+		if ( ! Wpb_Helpers::is_fs_connected() ) {
+			$this->errors->add('fs_not_connected', __('FS not connected', 'wpb'));
+			return false;
 		}
 
 		/**
@@ -80,13 +96,11 @@ class Wpb_Files_Backuper {
 		 */
 		global $wp_filesystem;
 
-		$file_name = basename($this->backup_file_path);
-
 		header('Content-Type: application/zip');
-		header("Content-Disposition: attachment; filename=$file_name");
-		header('Content-Length: ' . $wp_filesystem->size($this->backup_file_path));
+		header('Content-Disposition: attachment; filename=' . $this->zipper->get_archive_filename());
+		header('Content-Length: ' . $wp_filesystem->size($this->zipper->get_archive_fullpath()));
 
-		echo $wp_filesystem->get_contents($this->backup_file_path);
+		echo $wp_filesystem->get_contents($this->zipper->get_archive_fullpath());
 		exit;
 	}
 
@@ -95,7 +109,7 @@ class Wpb_Files_Backuper {
 	 * @param null $message
 	 * @param null $headers
 	 *
-	 * @return true|WP_Error
+	 * @return bool
 	 */
 	public function send_backup_to_email($subject = null, $message = null, $headers = null) {
 		$to = get_option(Wpb_Admin::OPTION_BACKUP_EMAIL, Wpb_Helpers::get_user_email());
@@ -113,69 +127,14 @@ class Wpb_Files_Backuper {
 		}
 
 		$attachments = [
-			$this->backup_file_path
+			$this->zipper->get_archive_fullpath(),
 		];
 
 		if ( ! wp_mail($to, $subject, $message, $headers, $attachments) ) {
-			return new WP_Error('files_backuper_wp_mail_error', __('Something went wrong while sending email via wp_mail', 'wpb'));
+			$this->errors->add('wp_mail_error', __('Something went wrong while sending email via wp_mail', 'wpb'));
+			return false;
 		}
 
 		return true;
-	}
-
-	/**
-	 * @param $files
-	 *
-	 * @return true|WP_Error
-	 */
-	private function create_archive_via_zip_archive($files) {
-		$zip = new ZipArchive();
-
-		$zip_file_path = $this->backup_dir . 'wpb_files_backup_' . date('Y-m-d_H-i-s') . '.zip';
-		if ( $zip->open($zip_file_path, ZipArchive::CREATE | ZipArchive::OVERWRITE) ) {
-
-			if ( is_wp_error($maybe_error = Wpb_Helpers::connect_to_fs()) ) {
-				return $maybe_error;
-			}
-
-			/**
-			 * @var WP_Filesystem_Base $wp_filesystem
-			 */
-			global $wp_filesystem;
-
-			foreach ( $files as $file ) {
-
-				$file_without_base = $file;
-				if ( substr($file, 0, strlen($this->wp_dir)) === $this->wp_dir ) {
-					$file_without_base = substr($file, strlen($this->wp_dir));
-				}
-
-				if ( $wp_filesystem->is_dir($file) ) {
-					$zip->addEmptyDir($file_without_base);
-				} else {
-					$zip->addFile($file, $file_without_base);
-				}
-			}
-
-			if ( $zip->close() ) {
-				$this->backup_file_path = $zip_file_path;
-				return true;
-			}
-		}
-
-		return new WP_Error('files_backuper_za_error', __('Something went wrong while archivation via ZipArchive', 'wpb'));
-	}
-
-	/**
-	 * @param $files
-	 *
-	 * @return WP_Error
-	 */
-	private function create_archive_via_pclzip($files) {
-
-		return new WP_Error('files_backuper_pclzip_stub', __('Archivation via PclZip not supported for now... ', 'wpb'));
-
-//		require_once(ABSPATH . 'wp-admin/includes/class-pclzip.php');
-//		$pclzip = new PclZip();
 	}
 }
