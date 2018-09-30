@@ -113,21 +113,21 @@ class Wpb_Admin {
 
 	public function download_backup() {
 
-		$backup_files = Wpb_Helpers::post_var('wpb_backup_files', false);
-		$backup_db = Wpb_Helpers::post_var('wpb_backup_db', false);
+		$backup_files   = Wpb_Helpers::post_var('wpb_backup_files', false);
+		$backup_db      = Wpb_Helpers::post_var('wpb_backup_db', false);
 
 		if ( ($backup_files xor $backup_db) && Wpb_Helpers::is_plugin_page(self::TAB_GENERAL) ) {
 			check_admin_referer('wpb_make_backup', 'wpb_make_backup');
 
-			$backuper = $backup_files ? Wpb_Files_Backuper::instance() : Wpb_Db_Backuper::instance();
+			$backuper = $backup_files ?
+				Wpb_Files_Backuper::instance() :
+				Wpb_Db_Backuper::instance();
 
-			if ( is_wp_error($maybe_error = $backuper->make_backup()) ) {
-				wp_die($maybe_error);
+			if ( ! $backuper->make_backup() ) {
+				wp_die($backuper->get_errors());
 			}
 
-			if ( is_wp_error($maybe_error = $backuper->send_backup_to_browser_and_exit()) ) {
-				wp_die($maybe_error);
-			}
+			$backuper->send_backup_to_browser_and_exit();
 		}
 	}
 
@@ -161,7 +161,9 @@ class Wpb_Admin {
 
 	private function display_tab_status() {
 
-		$with_fs_info = ! Wpb_Helpers::is_fs_connected();
+		$is_fs_connected = Wpb_Helpers::is_fs_connected() ;
+
+		$with_fs_info = ! $is_fs_connected;
 
 		$items = [
 			[
@@ -174,7 +176,7 @@ class Wpb_Admin {
 			[
 				'name'              => __('FS connected', 'wpb'),
 				'hint'              => __('Is successfully connected to filesystem?', 'wpb'),
-				'true'              => Wpb_Helpers::is_fs_connected(),
+				'true'              => $is_fs_connected,
 				'description_true'  => __('Yes', 'wpb'),
 				'description_false' => __('No', 'wpb'),
 			],
@@ -200,7 +202,7 @@ class Wpb_Admin {
 				'description_false' => __('Bedrock WP installation', 'wpb'),
 			],
 		];
-		if ( ! is_wp_error(Wpb_Helpers::connect_to_fs()) ) {
+		if ( $is_fs_connected ) {
 
 			$tmp_dir = get_temp_dir();
 

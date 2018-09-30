@@ -44,7 +44,7 @@ class Wpb_Db_Backuper {
 
 		$this->zipper = new Wpb_Zipper(
 			get_temp_dir(),
-			'wpb_sql_backup_' . date('Y-m-d_H-i-s') . '.sql.gz'
+			'wpb_sql_backup_' . date('Y-m-d_H-i-s') . '.zip'
 		);
 		$this->errors = new WP_Error();
 	}
@@ -55,7 +55,7 @@ class Wpb_Db_Backuper {
 	public function make_backup() {
 
 		if ( Wpb_Helpers::is_exec_available() ) {
-			return $this->create_archive_via_exec();
+			return $this->create_archive_via_mysqldump();
 		} else {
 			return $this->create_archive_via_wpdb();
 		}
@@ -85,14 +85,20 @@ class Wpb_Db_Backuper {
 
 	}
 
+	public function get_errors() {
+		return $this->errors;
+	}
+
 	/**
 	 * @return true|WP_Error
 	 */
-	private function create_archive_via_exec() {
+	private function create_archive_via_mysqldump() {
 		/** @var wpdb $wpdb */
 		global $wpdb;
 
+		$this->zipper->set_archive_filename('wpb_sql_backup_' . date('Y-m-d_H-i-s') . '.sql.gz');
 		$zip_file_path = $this->zipper->get_archive_fullpath();
+
 		$cmd = "mysqldump --user={$wpdb->dbuser} --password={$wpdb->dbpassword} {$wpdb->dbname} | gzip --best > $zip_file_path";
 		$exec_output = [];
 
@@ -209,13 +215,20 @@ class Wpb_Db_Backuper {
 		 */
 		global $wp_filesystem;
 
-		$sql_tmp_file = wp_tempnam('wpb_sql_backup_' . date('Y-m-d_H-i-s') . '.sql');
+		$sql_tmp_file = get_temp_dir() . 'wpb_sql_backup_' . date('Y-m-d_H-i-s') . '.sql';
+
+		if ( ! $wp_filesystem->touch($sql_tmp_file, $sql) ) {
+			$this->errors->add('touch_tmp_file_error', __('Something went wrong while touch temp file', 'wpb'), $sql_tmp_file);
+			return false;
+		}
 
 		if ( ! $wp_filesystem->put_contents($sql_tmp_file, $sql) ) {
-			$this->errors->add('put_sql_to_tmp_error', __('Something went wrong while put sql content to temp file', 'wpb'), $sql_tmp_file);
+			$this->errors->add('put_sql_to_tmp_file_error', __('Something went wrong while put sql content to temp file', 'wpb'), $sql_tmp_file);
 			$wp_filesystem->delete($sql_tmp_file);
 			return false;
 		}
+
+		$this->zipper->set_archive_filename('wpb_sql_backup_' . date('Y-m-d_H-i-s') . '.zip');
 
 		$this->zipper->push_file($sql_tmp_file);
 

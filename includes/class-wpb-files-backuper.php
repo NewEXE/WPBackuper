@@ -137,4 +137,7 @@ class Wpb_Files_Backuper {
 
 		return true;
 	}
+	public function get_errors() {
+		return $this->errors;
+	}
 }

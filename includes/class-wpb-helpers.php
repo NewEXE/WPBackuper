@@ -216,7 +216,7 @@ class Wpb_Helpers
 			return $is_bedrock;
 		}
 
-		if ( ! Wpb_Helpers::connect_to_fs() ) {
+		if ( ! Wpb_Helpers::is_fs_connected() ) {
 			return null;
 		}
 
@@ -290,7 +290,8 @@ class Wpb_Helpers
 		}
 
 		if ( empty($form_post) ) {
-			$form_post = Wpb_Helpers::current_url();
+			// Trying to use current url
+			$form_post = self::current_url();
 		}
 
 		$credentials = request_filesystem_credentials($form_post);
@@ -322,7 +323,47 @@ class Wpb_Helpers
 			return get_filesystem_method() === 'direct';
 		}
 
-		return @is_writable(get_temp_dir());
+		$method = defined('FS_METHOD') ? FS_METHOD : false;
+
+		if ( $method === 'direct' ) {
+			return true;
+		}
+
+		// Let's perform FS writing test from get_filesystem_method().
+
+		$context = WP_CONTENT_DIR;
+
+		if ( WP_LANG_DIR === $context && ! is_dir( $context ) ) {
+			$context = dirname( $context );
+		}
+
+		$context = trailingslashit( $context );
+
+		file_put_contents(__FILE__ . '.log', 'write-test...' . PHP_EOL, FILE_APPEND);
+
+		$temp_file_name = $context . 'temp-write-test-' . time();
+		$temp_handle = @fopen($temp_file_name, 'w');
+		if ( $temp_handle ) {
+
+			$wp_file_owner = $temp_file_owner = false;
+			if ( function_exists('fileowner') ) {
+				$wp_file_owner = @fileowner( __FILE__ );
+				$temp_file_owner = @fileowner( $temp_file_name );
+			}
+
+			if ( $wp_file_owner !== false && $wp_file_owner === $temp_file_owner ) {
+				$method = 'direct';
+			}
+
+			@fclose($temp_handle);
+			@unlink($temp_file_name);
+		}
+
+		if ( $method === 'direct' ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	public static function get_wp_dir() {
@@ -364,7 +405,7 @@ class Wpb_Helpers
 	}
 
 	public static function is_temp_dir_writable() {
-		if ( is_wp_error(Wpb_Helpers::connect_to_fs()) ) {
+		if ( ! Wpb_Helpers::is_fs_connected() ) {
 			return false;
 		}
 
@@ -398,7 +439,7 @@ class Wpb_Helpers
 	}
 
 	public static function get_user_email($default = 'dummy@example.com') {
-		return Wpb_Helpers::safe_wp_get_current_user('user_email', $default);
+		return self::safe_wp_get_current_user('user_email', $default);
 	}
 
 	public static function is_admin() {
