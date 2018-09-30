@@ -7,8 +7,12 @@
 </form>
 
 <form method="post">
-    <?php wp_nonce_field('wpb_make_backup', 'wpb_make_backup') ?>
-    <?php submit_button(__('Make files backup', 'wpb'), '', 'wpb_backup_files', false); ?>
+    <?php wp_nonce_field('wpb_general_tasks', 'wpb_general_tasks') ?>
 
-    <?php submit_button(__('Make database backup', 'wpb'), '', 'wpb_backup_db', false); ?>
+    <p class="description"><?php _e('Create backup now and download via browser. This may take some time.' , 'wpb') ?></p>
+    <?php submit_button(__('Download files backup', 'wpb'), '', 'wpb_backup_files', false); ?>
+    <?php submit_button(__('Download database backup', 'wpb'), '', 'wpb_backup_db', false); ?>
+    <br /><br />
+    <p class="description"><?php _e('Backups are save into temporary folder. You can clean this dir now.', 'wpb') ?></p>
+    <?php submit_button(__('Clean temp dir', 'wpb'), '', 'wpb_clean_temp_dir', false); ?>
 </form>

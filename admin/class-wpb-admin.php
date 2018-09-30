@@ -111,23 +111,48 @@ class Wpb_Admin {
 		$this->display_footer();
 	}
 
-	public function download_backup() {
-
+	public function general_tasks() {
 		$backup_files   = Wpb_Helpers::post_var('wpb_backup_files', false);
 		$backup_db      = Wpb_Helpers::post_var('wpb_backup_db', false);
+		$clean_temp_dir = Wpb_Helpers::post_var('wpb_clean_temp_dir', false);
 
-		if ( ($backup_files xor $backup_db) && Wpb_Helpers::is_plugin_page(self::TAB_GENERAL) ) {
-			check_admin_referer('wpb_make_backup', 'wpb_make_backup');
+		if ( $backup_files || $backup_db || $clean_temp_dir )  {
+			// The task performing is requested, so check nonce and page.
+			check_admin_referer('wpb_general_tasks', 'wpb_general_tasks');
+			if ( ! Wpb_Helpers::is_plugin_page(self::TAB_GENERAL) ) return;
+		}
+
+		if ( ($backup_files xor $backup_db)  ) {
 
 			$backuper = $backup_files ?
 				Wpb_Files_Backuper::instance() :
 				Wpb_Db_Backuper::instance();
 
-			if ( ! $backuper->make_backup() ) {
-				wp_die($backuper->get_errors());
-			}
+			$this->download_backup($backuper);
+		}
 
-			$backuper->send_backup_to_browser_and_exit();
+		if ( $clean_temp_dir ) {
+			check_admin_referer('wpb_general_tasks', 'wpb_general_tasks');
+
+			$this->clean_temp_dir();
+		}
+	}
+
+	/**
+	 * @param Wpb_Files_Backuper|Wpb_Db_Backuper $backuper
+	 */
+	private function download_backup($backuper) {
+
+		if ( ! $backuper->make_backup() ) {
+			wp_die($backuper->get_errors(), '', ['back_link' => true]);
+		}
+
+		$backuper->send_backup_to_browser_and_exit();
+	}
+
+	private function clean_temp_dir() {
+		if ( ! Wpb_Helpers::clean_temp_dir() ) {
+			wp_die(__('Something went wrong while cleaning temp dir', 'wpb'), '', ['back_link' => true]);
 		}
 	}
 
@@ -161,7 +186,7 @@ class Wpb_Admin {
 
 	private function display_tab_status() {
 
-		$is_fs_connected = Wpb_Helpers::is_fs_connected() ;
+		$is_fs_connected = Wpb_Helpers::is_fs_connected();
 
 		$with_fs_info = ! $is_fs_connected;
 

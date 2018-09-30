@@ -28,11 +28,18 @@ class Wpb_Admin_Notices {
 
 		if ( $needs_notice ) {
 			$msg = sprintf(
-				/* translators: 1: Admin URL to plugin status page */
+			/* translators: 1: Admin URL to plugin status page */
 				__( 'WPBackuper Filesystem connection issue. See <a href="%1$s">plugin status page</a> for details.' ),
 				Wpb_Helpers::plugin_url(Wpb_Admin::TAB_STATUS)
 			);
 			self::print_notice($msg, self::TYPE_ERROR);
+		}
+	}
+
+	public function maybe_add_settings_updated_notice() {
+		if ( Wpb_Helpers::get_var('settings-updated', false) && Wpb_Helpers::is_plugin_page() ) {
+			$msg = __('<b>Settings saved.</b>', 'wpb');
+			self::print_notice($msg, self::TYPE_SUCCESS);
 		}
 	}
 

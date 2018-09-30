@@ -224,12 +224,14 @@ class Wpb {
 		$plugin_file = plugin_basename(WPB_PLUGIN_MAIN_FILE);
 		$this->loader->add_filter( 'plugin_action_links_' . $plugin_file, $plugin_admin, 'add_settings_link' );
 
-		$this->loader->add_action( 'load-tools_page_' . Wpb_Admin::PAGE_KEY, $plugin_admin, 'download_backup' );
+		$this->loader->add_action( 'load-tools_page_' . Wpb_Admin::PAGE_KEY, $plugin_admin, 'general_tasks' );
 	}
 
 	private function define_admin_notices_hooks() {
 		$admin_notices = new Wpb_Admin_Notices();
 		$this->loader->add_action('admin_notices', $admin_notices, 'maybe_add_fs_credentials_notice' );
+
+		$this->loader->add_action('admin_notices', $admin_notices, 'maybe_add_settings_updated_notice' );
 	}
 
 	/**

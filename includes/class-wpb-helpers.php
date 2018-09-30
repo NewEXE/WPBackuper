@@ -332,14 +332,10 @@ class Wpb_Helpers
 		// Let's perform FS writing test from get_filesystem_method().
 
 		$context = WP_CONTENT_DIR;
-
 		if ( WP_LANG_DIR === $context && ! is_dir( $context ) ) {
 			$context = dirname( $context );
 		}
-
 		$context = trailingslashit( $context );
-
-		file_put_contents(__FILE__ . '.log', 'write-test...' . PHP_EOL, FILE_APPEND);
 
 		$temp_file_name = $context . 'temp-write-test-' . time();
 		$temp_handle = @fopen($temp_file_name, 'w');
@@ -413,6 +409,23 @@ class Wpb_Helpers
 		global $wp_filesystem;
 
 		return $wp_filesystem->is_writable(get_temp_dir());
+	}
+
+	public static function clean_temp_dir() {
+		if ( ! Wpb_Helpers::is_fs_connected() ) {
+			return false;
+		}
+
+		/** @var WP_Filesystem_Base $wp_filesystem */
+		global $wp_filesystem;
+
+		$files = list_files(get_temp_dir());
+
+		foreach ($files as $file) {
+			$wp_filesystem->delete($file, true);
+		}
+
+		return true;
 	}
 
 	/**

@@ -101,7 +101,7 @@ class Wpb_Files_Backuper {
 		header('Content-Length: ' . $wp_filesystem->size($this->zipper->get_archive_fullpath()));
 
 		echo $wp_filesystem->get_contents($this->zipper->get_archive_fullpath());
-		exit;
+		exit(0);
 	}
 
 	/**
