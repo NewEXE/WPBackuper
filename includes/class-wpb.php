@@ -232,6 +232,7 @@ class Wpb {
 		$this->loader->add_action('admin_notices', $admin_notices, 'maybe_add_fs_credentials_notice' );
 
 		$this->loader->add_action('admin_notices', $admin_notices, 'maybe_add_settings_updated_notice' );
+		$this->loader->add_action('admin_notices', $admin_notices, 'maybe_add_flash_notice' );
 	}
 
 	/**

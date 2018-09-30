@@ -38,12 +38,42 @@ class Wpb_Admin_Notices {
 
 	public function maybe_add_settings_updated_notice() {
 		if ( Wpb_Helpers::get_var('settings-updated', false) && Wpb_Helpers::is_plugin_page() ) {
-			$msg = __('<b>Settings saved.</b>', 'wpb');
+			$msg = __('Settings saved.', 'wpb');
 			self::print_notice($msg, self::TYPE_SUCCESS);
 		}
 	}
 
+	public function maybe_add_flash_notice() {
+		if ( ($flash = self::flash('wpb_flash')) && Wpb_Helpers::is_plugin_page() ) {
+
+			foreach ($flash as $f) {
+				self::print_notice($f['message'], $f['type']);
+			}
+		}
+	}
+
+	public static function flash($message, $type = null) {
+
+		if ( ! is_null($type) ) { // 'Set' mode
+			$type = self::get_correct_type($type);
+
+			$_POST['wpb_flash'][] = compact('message', 'type');
+		} else { // 'Get' mode
+			return Wpb_Helpers::post_var('wpb_flash', false);
+		}
+	}
+
 	private static function print_notice($message, $type = self::TYPE_INFO) {
+		$type = self::get_correct_type($type);
+
+		$args = [
+			'type'      => $type,
+			'message'   => $message
+		];
+		echo Wpb_Admin::render('notices/admin-notice', $args);
+	}
+
+	private static function get_correct_type($type) {
 		$allowed_types = [
 			self::TYPE_SUCCESS,
 			self::TYPE_INFO,
@@ -52,10 +82,6 @@ class Wpb_Admin_Notices {
 		];
 		if ( ! in_array($type, $allowed_types) ) $type = self::TYPE_INFO;
 
-		$args = [
-			'type'      => $type,
-			'message'   => $message
-		];
-		echo Wpb_Admin::render('notices/admin-notice', $args);
+		return $type;
 	}
 }

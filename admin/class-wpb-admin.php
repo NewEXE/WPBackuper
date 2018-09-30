@@ -151,8 +151,10 @@ class Wpb_Admin {
 	}
 
 	private function clean_temp_dir() {
-		if ( ! Wpb_Helpers::clean_temp_dir() ) {
-			wp_die(__('Something went wrong while cleaning temp dir', 'wpb'), '', ['back_link' => true]);
+		if ( Wpb_Helpers::clean_temp_dir() ) {
+			Wpb_Admin_Notices::flash(__('Temp directory cleared.', 'wpb'), Wpb_Admin_Notices::TYPE_SUCCESS);
+		} else {
+			Wpb_Admin_Notices::flash(__('Something went wrong while cleaning temp dir.', 'wpb'), Wpb_Admin_Notices::TYPE_ERROR);
 		}
 	}
 
