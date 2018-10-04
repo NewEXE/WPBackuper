@@ -27,9 +27,7 @@ class Wpb_Helpers
 		}
 
 		if ( ! is_null($query_args) ) {
-			if ( ! is_array($query_args) ) {
-				$query_args = [$query_args];
-			}
+			$query_args = self::array_wrap($query_args);
 			$q = array_merge($query_args, $q);
 		}
 
@@ -47,6 +45,11 @@ class Wpb_Helpers
 		return plugin_dir_url(WPB_PLUGIN_MAIN_FILE) . $path;
 	}
 
+	/**
+	 *
+	 *
+	 * @return string
+	 */
 	public static function current_url() {
 		return home_url(add_query_arg(null, null));
 	}
@@ -264,9 +267,9 @@ class Wpb_Helpers
 			$fs_method = defined('FS_METHOD') ? FS_METHOD : false;
 		}
 
-		if ( ( defined( 'FTP_SSH' ) && FTP_SSH ) || ( defined( 'FS_METHOD' ) && 'ssh2' == FS_METHOD ) ) {
+		if ( ( defined( 'FTP_SSH' ) && FTP_SSH ) || ( defined( 'FS_METHOD' ) && 'ssh2' === FS_METHOD ) ) {
 			$credentials['connection_type'] = 'ssh';
-		} elseif ( ( defined( 'FTP_SSL' ) && FTP_SSL ) && 'ftpext' == $fs_method ) {
+		} elseif ( ( defined( 'FTP_SSL' ) && FTP_SSL ) && 'ftpext' === $fs_method ) {
 			// Only the FTP Extension understands SSL.
 			$credentials['connection_type'] = 'ftps';
 		} elseif ( ! isset( $credentials['connection_type'] ) ) {
@@ -290,7 +293,7 @@ class Wpb_Helpers
 		}
 
 		if ( empty($form_post) ) {
-			// Trying to use current url
+			// Trying to use current url with GET params (if present)
 			$form_post = self::current_url();
 		}
 
@@ -308,11 +311,19 @@ class Wpb_Helpers
 		return true;
 	}
 
+	/**
+	 * Performs filesystem connection (direct/ftp/ssh)
+	 * check without requesting credentials.
+	 *
+	 * @return bool
+	 */
 	public static function is_fs_connected() {
 		global $wp_filesystem;
 
-		if ( $wp_filesystem ) {
-			return true;
+		if ( $wp_filesystem instanceof WP_Filesystem_Base) {
+			if ( $wp_filesystem->method === 'direct' || $wp_filesystem->connect() ) {
+				return true;
+			}
 		}
 
 		if ( function_exists('WP_Filesystem') ) {
@@ -494,6 +505,29 @@ class Wpb_Helpers
 		$value = self::sanitize($value);
 
 		return $value;
+	}
+
+	/**
+	 * If the given value is not an array and not null, wrap it in one.
+	 *
+	 * @param  mixed  $value
+	 * @return array
+	 */
+	public static function array_wrap($value)
+	{
+		if ( is_null($value) ) {
+			return [];
+		}
+
+		return ! is_array($value) ? [$value] : $value;
+	}
+
+	public static function wrap_code_tag($array, $delimiter = ' ') {
+		$html = '';
+		foreach ( $array as $item ) {
+			$html .= '<code>' . $item . '</code>' . $delimiter;
+		}
+		return $html;
 	}
 
 }

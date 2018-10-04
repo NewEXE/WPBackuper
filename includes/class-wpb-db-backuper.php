@@ -6,7 +6,7 @@
  * Time: 2:04
  */
 
-class Wpb_Db_Backuper {
+class Wpb_Db_Backuper extends Wpb_Abstract_Backuper {
 
 	/**
 	 * The single instance of the class.
@@ -18,7 +18,7 @@ class Wpb_Db_Backuper {
 	/**
 	 * @var Wpb_Archiver
 	 */
-	private $zipper;
+	private $archiver;
 
 	/**
 	 * @var WP_Error
@@ -42,11 +42,11 @@ class Wpb_Db_Backuper {
 
 	private function __construct() {
 
-		$this->zipper = new Wpb_Zipper(
+		$this->archiver = new Wpb_Zipper(
 			get_temp_dir(),
 			'wpb_sql_backup_' . date('Y-m-d_H-i-s') . '.zip'
 		);
-		$this->errors = new WP_Error();
+		$this->errors   = new WP_Error();
 	}
 
 	/**
@@ -74,15 +74,38 @@ class Wpb_Db_Backuper {
 		global $wp_filesystem;
 
 		header('Content-Type: application/x-gzip');
-		header('Content-Disposition: attachment; filename=' . $this->zipper->get_archive_filename());
-		header('Content-Length: ' . $wp_filesystem->size($this->zipper->get_archive_fullpath()));
+		header('Content-Disposition: attachment; filename=' . $this->archiver->get_archive_filename());
+		header('Content-Length: ' . $wp_filesystem->size($this->archiver->get_archive_fullpath()));
 
-		echo $wp_filesystem->get_contents($this->zipper->get_archive_fullpath());
+		echo $wp_filesystem->get_contents($this->archiver->get_archive_fullpath());
 		exit(0);
 	}
 
-	public function send_backup_to_email() {
+	public function send_backup_to_email($subject = null, $message = null, $headers = null) {
+		$to = get_option(Wpb_Admin::OPTION_BACKUP_EMAIL, Wpb_Helpers::get_user_email());
 
+		if ( is_null($subject) ) {
+			$subject = __('WPBackup: your WP DB backup', 'wpb');
+		}
+
+		if ( is_null($message) ) {
+			$message = __('Howdy! Here your backup of WordPress Database.', 'wpb');
+		}
+
+		if ( is_null($headers) ) {
+			$headers = '';
+		}
+
+		$attachments = [
+			$this->archiver->get_archive_fullpath(),
+		];
+
+		if ( ! wp_mail($to, $subject, $message, $headers, $attachments) ) {
+			$this->errors->add('wp_mail_error', __('Something went wrong while sending email via wp_mail', 'wpb'));
+			return false;
+		}
+
+		return true;
 	}
 
 	public function get_errors() {
@@ -96,8 +119,8 @@ class Wpb_Db_Backuper {
 		/** @var wpdb $wpdb */
 		global $wpdb;
 
-		$this->zipper->set_archive_filename('wpb_sql_backup_' . date('Y-m-d_H-i-s') . '.sql.gz');
-		$zip_file_path = $this->zipper->get_archive_fullpath();
+		$this->archiver->set_archive_filename( 'wpb_sql_backup_' . date('Y-m-d_H-i-s') . '.sql.gz');
+		$zip_file_path = $this->archiver->get_archive_fullpath();
 
 		$cmd = "mysqldump --user={$wpdb->dbuser} --password={$wpdb->dbpassword} {$wpdb->dbname} | gzip --best > $zip_file_path";
 		$exec_output = [];
@@ -228,11 +251,11 @@ class Wpb_Db_Backuper {
 			return false;
 		}
 
-		$this->zipper->set_archive_filename('wpb_sql_backup_' . date('Y-m-d_H-i-s') . '.zip');
+		$this->archiver->set_archive_filename( 'wpb_sql_backup_' . date('Y-m-d_H-i-s') . '.zip');
 
-		$this->zipper->push_file($sql_tmp_file);
+		$this->archiver->push_file($sql_tmp_file);
 
-		if ( ! $this->zipper->create_archive(get_temp_dir()) ) {
+		if ( ! $this->archiver->create_archive(get_temp_dir()) ) {
 			$wp_filesystem->delete($sql_tmp_file);
 			// todo find way for sharing errors from zipper
 			return false;

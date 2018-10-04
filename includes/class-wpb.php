@@ -76,6 +76,7 @@ class Wpb {
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_admin_notices_hooks();
+		$this->set_cron_tasks();
 	}
 
 	/**
@@ -172,15 +173,19 @@ class Wpb {
 			 */
 			'admin/class-wpb-admin-notices.php',
 
+			'includes/abstracts/class-wpb-abstract-backuper.php',
+
 			/**
 			 * The class for performing backup of WP directory.
 			 */
 			'includes/class-wpb-files-backuper.php',
 
 			/**
-			 * The class for performing backup of WP directory.
+			 * The class for performing backup of WP database.
 			 */
 			'includes/class-wpb-db-backuper.php',
+
+			'includes/class-wpb-cron.php',
 		];
 
 		foreach ( $includes as $include ) {
@@ -233,6 +238,13 @@ class Wpb {
 
 		$this->loader->add_action('admin_notices', $admin_notices, 'maybe_add_settings_updated_notice' );
 		$this->loader->add_action('admin_notices', $admin_notices, 'maybe_add_flash_notice' );
+	}
+
+	private function set_cron_tasks() {
+		$cron = new Wpb_Cron();
+
+		$cron->define_cron_hooks();
+		$cron->schedule_cron_events();
 	}
 
 	/**

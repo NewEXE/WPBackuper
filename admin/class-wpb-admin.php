@@ -122,32 +122,17 @@ class Wpb_Admin {
 			if ( ! Wpb_Helpers::is_plugin_page(self::TAB_GENERAL) ) return;
 		}
 
-		if ( ($backup_files xor $backup_db)  ) {
-
+		if ( ($backup_files xor $backup_db) ) {
 			$backuper = $backup_files ?
-				Wpb_Files_Backuper::instance() :
-				Wpb_Db_Backuper::instance();
+				Wpb_Abstract_Backuper::get_backuper(Wpb_Abstract_Backuper::TYPE_FILES) :
+				Wpb_Abstract_Backuper::get_backuper(Wpb_Abstract_Backuper::TYPE_DB);
 
-			$this->download_backup($backuper);
+			$backuper->download_backup();
 		}
 
 		if ( $clean_temp_dir ) {
-			check_admin_referer('wpb_general_tasks', 'wpb_general_tasks');
-
 			$this->clean_temp_dir();
 		}
-	}
-
-	/**
-	 * @param Wpb_Files_Backuper|Wpb_Db_Backuper $backuper
-	 */
-	private function download_backup($backuper) {
-
-		if ( ! $backuper->make_backup() ) {
-			wp_die($backuper->get_errors(), '', ['back_link' => true]);
-		}
-
-		$backuper->send_backup_to_browser_and_exit();
 	}
 
 	private function clean_temp_dir() {
@@ -178,9 +163,12 @@ class Wpb_Admin {
 
 	private function display_tab_cron() {
 
+		$plugin_cron_tasks = Wpb_Cron::get_plugin_cron_tasks();
+
 		$view_args = [
 			'settings_cron'     => self::TAB_CRON,
 			'section_general'   => self::TAB_CRON . '-general',
+			'plugin_cron_tasks' => $plugin_cron_tasks,
 		];
 
 		echo self::render('tab-cron', $view_args);
@@ -225,7 +213,7 @@ class Wpb_Admin {
 				'name'              => __('Is normal WP installation?', 'wpb'),
 				'hint'              => __('WP was installed with Bedrock or no?', 'wpb'),
 				'true'              => ! Wpb_Helpers::is_bedrock(),
-				'description_true'  => __('Normal WP installation', 'wpb'),
+				'description_true'  => __('Common WP installation', 'wpb'),
 				'description_false' => __('Bedrock WP installation', 'wpb'),
 			],
 		];

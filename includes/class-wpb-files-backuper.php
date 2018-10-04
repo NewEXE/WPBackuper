@@ -6,7 +6,7 @@
  * Time: 19:02
  */
 
-class Wpb_Files_Backuper {
+class Wpb_Files_Backuper extends Wpb_Abstract_Backuper {
 
 	/**
 	 * The single instance of the class.
@@ -18,7 +18,7 @@ class Wpb_Files_Backuper {
 	/**
 	 * @var Wpb_Archiver
 	 */
-	private $zipper;
+	private $archiver;
 
 	/**
 	 * @var WP_Error
@@ -41,15 +41,15 @@ class Wpb_Files_Backuper {
 	}
 
 	private function __construct() {
-		$this->zipper = new Wpb_Zipper(
+		$this->archiver = new Wpb_Zipper(
 			get_temp_dir(),
 			'wpb_files_backup_' . date('Y-m-d_H-i-s') . '.zip'
 		);
-		$this->errors = new WP_Error();
+		$this->errors   = new WP_Error();
 	}
 
 	public function get_backup_file_path() {
-		return $this->zipper->get_archive_fullpath();
+		return $this->archiver->get_archive_fullpath();
 	}
 
 	/**
@@ -74,9 +74,9 @@ class Wpb_Files_Backuper {
 			return false;
 		}
 
-		$this->zipper->push_files($list_files);
+		$this->archiver->push_files($list_files);
 
-		if ( ! $this->zipper->create_archive($wp_dir) ) {
+		if ( ! $this->archiver->create_archive($wp_dir) ) {
 			// todo find way for sharing errors from zipper
 			return false;
 		}
@@ -97,10 +97,10 @@ class Wpb_Files_Backuper {
 		global $wp_filesystem;
 
 		header('Content-Type: application/zip');
-		header('Content-Disposition: attachment; filename=' . $this->zipper->get_archive_filename());
-		header('Content-Length: ' . $wp_filesystem->size($this->zipper->get_archive_fullpath()));
+		header('Content-Disposition: attachment; filename=' . $this->archiver->get_archive_filename());
+		header('Content-Length: ' . $wp_filesystem->size($this->archiver->get_archive_fullpath()));
 
-		echo $wp_filesystem->get_contents($this->zipper->get_archive_fullpath());
+		echo $wp_filesystem->get_contents($this->archiver->get_archive_fullpath());
 		exit(0);
 	}
 
@@ -127,7 +127,7 @@ class Wpb_Files_Backuper {
 		}
 
 		$attachments = [
-			$this->zipper->get_archive_fullpath(),
+			$this->archiver->get_archive_fullpath(),
 		];
 
 		if ( ! wp_mail($to, $subject, $message, $headers, $attachments) ) {
@@ -137,6 +137,7 @@ class Wpb_Files_Backuper {
 
 		return true;
 	}
+
 	public function get_errors() {
 		return $this->errors;
 	}
