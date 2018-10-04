@@ -44,7 +44,10 @@ class Wpb_Admin_Notices {
 	}
 
 	public function maybe_add_flash_notice() {
-		if ( ($flash = self::flash('wpb_flash')) && Wpb_Helpers::is_plugin_page() ) {
+
+		$flash = self::flash('wpb_flash');
+
+		if ( $flash && Wpb_Helpers::is_plugin_page() ) {
 
 			foreach ($flash as $f) {
 				self::print_notice($f['message'], $f['type']);

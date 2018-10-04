@@ -40,6 +40,7 @@ class Wpb_Admin_Sanitizator {
 	public function sanitize_email($value) {
 
 		$value = Wpb_Helpers::sanitize($value);
+		$value = sanitize_email($value);
 
 		if ( ! is_email($value) ) {
 			$user_email = Wpb_Helpers::get_user_email();

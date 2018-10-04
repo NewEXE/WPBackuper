@@ -63,7 +63,9 @@ class Wpb_Files_Backuper extends Wpb_Abstract_Backuper {
 		}
 
 		$wp_dir = Wpb_Helpers::get_wp_dir();
-		$list_files = list_files($wp_dir);
+
+		//todo escape from list_files() that working correctly only with 'direct' FS
+		$list_files = Wpb_Helpers::list_files($wp_dir);
 
 		if ( ! $list_files ) {
 			$this->errors->add(

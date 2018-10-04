@@ -440,6 +440,52 @@ class Wpb_Helpers
 	}
 
 	/**
+	 * Returns a listing of all files in the specified folder and all subdirectories up to 100 levels deep.
+	 * The depth of the recursiveness can be controlled by the $levels param.
+	 *
+	 * @param string $folder Optional. Full path to folder. Default empty.
+	 * @param int    $levels Optional. Levels of folders to follow, Default 100 (PHP Loop limit).
+	 * @return bool|array False on failure, Else array of files
+	 */
+	public static function list_files( $folder = '', $levels = 100 ) {
+		if ( empty( $folder ) ) {
+			return false;
+		}
+
+		$folder = trailingslashit( $folder );
+
+		if ( ! $levels ) {
+			return false;
+		}
+
+		$files = [];
+
+		$dir = @opendir( $folder );
+		if ( $dir ) {
+			while ( ( $file = readdir( $dir ) ) !== false ) {
+				// Skip current and parent folder links.
+				if ( in_array( $file, [ '.', '..' ], true ) ) {
+					continue;
+				}
+
+				if ( is_dir( $folder . $file ) ) {
+					$files2 = self::list_files( $folder . $file, $levels - 1 );
+					if ( $files2 ) {
+						$files = array_merge($files, $files2 );
+					} else {
+						$files[] = $folder . $file . '/';
+					}
+				} else {
+					$files[] = $folder . $file;
+				}
+			}
+		}
+		@closedir( $dir );
+
+		return $files;
+	}
+
+	/**
 	 * @param string $property
 	 * @param mixed $default
 	 *

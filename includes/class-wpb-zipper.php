@@ -154,6 +154,9 @@ class Wpb_Zipper implements Wpb_Archiver {
 			if ( $zip->close() ) {
 				$this->is_archive_created = true;
 				return true;
+			} else {
+				$this->errors->add('za_closing_error', __('ZipArchive: Something went wrong while closing archive', 'wpb'), $zip);
+				return false;
 			}
 		}
 
