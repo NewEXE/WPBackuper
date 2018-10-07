@@ -321,7 +321,7 @@ class Wpb_Helpers
 		global $wp_filesystem;
 
 		if ( $wp_filesystem instanceof WP_Filesystem_Base) {
-			if ( $wp_filesystem->method === 'direct' || $wp_filesystem->connect() ) {
+			if ( $wp_filesystem->connect() ) {
 				return true;
 			}
 		}

@@ -24,8 +24,11 @@ class Wpb_Admin {
 	const TAB_STATUS    = self::PAGE_KEY . '-status';
 
 	// Options
-	const OPTION_BACKUP_EMAIL   = 'wpb_backup_email';
-	const OPTION_IS_CRON_SET    = 'wpb_is_cron_set';
+	const OPTION_BACKUP_EMAIL                   = 'wpb_backup_email';
+
+	const OPTION_BACKUP_ACTIVATE_SCHEDULE_FILES = 'wpb_activate_schedule_files';
+	const OPTION_BACKUP_ACTIVATE_SCHEDULE_DB    = 'wpb_activate_schedule_db';
+	const OPTION_IS_CRON_SET                    = 'wpb_is_cron_set';
 
 	public function __construct( ) {  }
 
@@ -82,6 +85,7 @@ class Wpb_Admin {
 	 */
 	public function register_settings() {
 		$this->register_settings_general();
+		$this->register_settings_cron();
 	}
 
 	/**
@@ -270,7 +274,7 @@ class Wpb_Admin {
 		add_settings_field(
 			$field_backup_email,
 			__( 'E-mail to send a backup', 'wpb' ),
-			[ $this, 'render_input' ],
+			[$this, 'render_input'],
 			$section_id,
 			$section_id,
 			array(
@@ -290,6 +294,43 @@ class Wpb_Admin {
 			'sanitize_callback' => [Wpb_Admin_Sanitizator::instance(), 'sanitize_email']
 		]);
 	}
+
+	private function register_settings_cron() {
+
+//		'settings_cron'     => self::TAB_CRON,
+//		'section_general'   => self::TAB_CRON . '-general',
+
+		$section_id = self::TAB_CRON . '-general';
+		$field_wpb_activate_schedule_files  = self::OPTION_BACKUP_ACTIVATE_SCHEDULE_FILES;
+		$field_wpb_activate_schedule_db     = self::OPTION_BACKUP_ACTIVATE_SCHEDULE_DB;
+
+		add_settings_section(
+			$section_id,
+			'',
+			'',
+			$section_id
+		);
+
+		add_settings_field(
+			$field_wpb_activate_schedule_files,
+			'',
+			[$this, 'render_input'],
+			$section_id,
+			$section_id,
+			array(
+				'name'      => $field_wpb_activate_schedule_files,
+				'type'      => 'checkbox',
+				'value'     => true,
+				'label'     => '',
+			)
+		);
+
+		register_setting(self::TAB_CRON, $field_wpb_activate_schedule_files, [
+			'sanitize_callback' => [Wpb_Admin_Sanitizator::instance(), 'sanitize_checkbox']
+		]);
+	}
+
+
 
 	/**
 	 * Render template file with params.
@@ -351,6 +392,41 @@ class Wpb_Admin {
 		}
 
 		echo self::render("inputs/$type", $args);
+	}
+
+	/**
+	 * Prints out one specified field from settings section.
+	 *
+	 * Based on:
+	 * @see do_settings_sections
+	 *
+	 * @global array $wp_settings_sections  Storage array of all settings sections added to admin pages
+	 * @global array $wp_settings_fields    Storage array of settings fields and info about their pages/sections
+	 *
+	 * @param string $page                  The slug name of the page whose settings sections you want to output
+	 * @param string $field_id              Field ID for output
+	 */
+	public static function do_settings_section_field($page, $field_id) {
+		global $wp_settings_sections, $wp_settings_fields;
+
+		if ( ! isset( $wp_settings_sections[$page] ) )
+			return;
+
+		foreach ( (array) $wp_settings_sections[$page] as $section ) {
+
+			if ( $section['callback'] )
+				call_user_func( $section['callback'], $section );
+
+			if ( ! isset( $wp_settings_fields[$page][$section['id']] ) )
+				continue;
+
+			foreach ( (array) $wp_settings_fields[$page][$section['id']] as $field ) {
+				if ( $field['id'] !== $field_id )
+					continue;
+
+				call_user_func($field['callback'], $field['args']);
+			}
+		}
 	}
 
 }

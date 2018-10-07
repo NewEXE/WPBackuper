@@ -6,29 +6,48 @@
  * Time: 19:02
  */
 
+/**
+ * Class Wpb_Cron
+ */
 class Wpb_Cron {
 
 	const EVENT_BACKUP_FILES    = 'wpb_cron_backup_files';
 	const EVENT_BACKUP_DB       = 'wpb_cron_backup_db';
-	const EVENT_TEST            = 'wpb_cron_test';
 
-	public function test($p1, $p2, $p3) {
-		file_put_contents(__FILE__.'.log', $p1 . $p2 . $p3 . PHP_EOL, FILE_APPEND);
-	}
-
-	public function send_backup_to_email() {
-
+	/**
+	 * @param Wpb_Abstract_Backuper $backuper
+	 */
+	public function send_backup_to_email($backuper) {
+		$backuper->make_backup();
+		$backuper->send_backup_to_email();
 	}
 
 	public function define_cron_hooks() {
-		add_action(self::EVENT_TEST, [$this, 'test'], 10, 3);
+		add_action(self::EVENT_BACKUP_FILES, [$this, 'send_backup_to_email']);
+		add_action(self::EVENT_BACKUP_DB, [$this, 'send_backup_to_email']);
 	}
 
 	public function schedule_cron_events() {
-		$args = ['v1', 'v2', 'v3'];
 
-		if( ! wp_next_scheduled('wpb_cron_test', $args ) ) {
-			wp_schedule_event(time()+15, 'hourly', 'wpb_cron_test', $args);
+		$recurrence_files   = 'hourly';
+		$recurrence_db      = 'hourly';
+
+		if( ! wp_next_scheduled(self::EVENT_BACKUP_FILES, [Wpb_Abstract_Backuper::TYPE_FILES] ) ) {
+			wp_schedule_event(
+				time(),
+				$recurrence_files,
+				self::EVENT_BACKUP_FILES,
+				[Wpb_Abstract_Backuper::get_backuper(Wpb_Abstract_Backuper::TYPE_FILES)]
+			);
+		}
+
+		if( ! wp_next_scheduled(self::EVENT_BACKUP_DB, [Wpb_Abstract_Backuper::TYPE_DB] ) ) {
+			wp_schedule_event(
+				time(),
+				$recurrence_db,
+				self::EVENT_BACKUP_DB,
+				[Wpb_Abstract_Backuper::get_backuper(Wpb_Abstract_Backuper::TYPE_DB)]
+			);
 		}
 	}
 
@@ -45,7 +64,6 @@ class Wpb_Cron {
 		$plugin_cron_tasks = [];
 
 		foreach ( $cron_option as $time => $tasks_by_time ) {
-
 			foreach ( $tasks_by_time as $name => $tasks ) {
 				// It's plugin's task.
 				if ( in_array($name, [self::EVENT_BACKUP_FILES, self::EVENT_BACKUP_DB]) ) {
@@ -69,13 +87,28 @@ class Wpb_Cron {
 	public static function get_readable_name($event) {
 		switch ($event) {
 			case self::EVENT_BACKUP_FILES:
-				return __('Create backup files and send by email', 'wpb');
+				return __('Create files backup and send by email', 'wpb');
 			case self::EVENT_BACKUP_DB:
-				return __('Create backup database and send by email', 'wpb');
-			case self::EVENT_TEST:
-				return __('Test event', 'wpb');
+				return __('Create database backup and send by email', 'wpb');
 			default:
-				return __('Unknown');
+				return __('Unknown', 'wpb');
+		}
+	}
+
+	/**
+	 * @param $schedule
+	 *
+	 * @return string
+	 */
+	public static function get_readable_schedule($schedule) {
+		static $schedules = null;
+
+		if ( is_null($schedules) ) {
+			$schedules = wp_get_schedules();
+		}
+
+		if ( in_array($schedule, array_keys($schedules)) ) {
+			return $schedules[$schedule]['display'];
 		}
 	}
 }

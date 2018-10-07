@@ -2,8 +2,8 @@
 
 abstract class Wpb_Abstract_Backuper {
 
-	const TYPE_FILES    = 1;
-	const TYPE_DB       = 2;
+	const TYPE_FILES    = 'files';
+	const TYPE_DB       = 'db';
 
 	/**
 	 * @param $type

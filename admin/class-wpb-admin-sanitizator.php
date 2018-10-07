@@ -51,4 +51,18 @@ class Wpb_Admin_Sanitizator {
 		return $value;
 	}
 
+	/**
+	 * @param string|null $value
+	 * @return string Correct string: '' or 'true'
+	 */
+	public function sanitize_checkbox($value) {
+
+		$value = Wpb_Helpers::sanitize($value);
+
+		// Replace any non-empty string as 'true' (string)
+		$value = ! empty($value) ? 'true' : '';
+
+		return $value;
+	}
+
 }
