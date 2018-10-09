@@ -238,6 +238,8 @@ class Wpb {
 
 		$this->loader->add_action('admin_notices', $admin_notices, 'maybe_add_settings_updated_notice' );
 		$this->loader->add_action('admin_notices', $admin_notices, 'maybe_add_flash_notice' );
+
+		$this->loader->add_action('wp_mail_failed', $admin_notices, 'add_wp_mail_error_notice');
 	}
 
 	private function set_cron_tasks() {

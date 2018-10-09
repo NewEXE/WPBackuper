@@ -26,8 +26,6 @@ class Wpb_Admin {
 	// Options
 	const OPTION_BACKUP_EMAIL                   = 'wpb_backup_email';
 
-	const OPTION_BACKUP_ACTIVATE_SCHEDULE_FILES = 'wpb_activate_schedule_files';
-	const OPTION_BACKUP_ACTIVATE_SCHEDULE_DB    = 'wpb_activate_schedule_db';
 	const OPTION_IS_CRON_SET                    = 'wpb_is_cron_set';
 
 	public function __construct( ) {  }
@@ -121,17 +119,25 @@ class Wpb_Admin {
 		$clean_temp_dir = Wpb_Helpers::post_var('wpb_clean_temp_dir', false);
 
 		if ( $backup_files || $backup_db || $clean_temp_dir )  {
-			// The task performing is requested, so check nonce and page.
+			// The task performing is requested, so check nonce, page and user permissions.
 			check_admin_referer('wpb_general_tasks', 'wpb_general_tasks');
 			if ( ! Wpb_Helpers::is_plugin_page(self::TAB_GENERAL) ) return;
+			if ( ! Wpb_Helpers::is_admin() ) return;
 		}
 
 		if ( ($backup_files xor $backup_db) ) {
 			$backuper = $backup_files ?
-				Wpb_Abstract_Backuper::get_backuper(Wpb_Abstract_Backuper::TYPE_FILES) :
-				Wpb_Abstract_Backuper::get_backuper(Wpb_Abstract_Backuper::TYPE_DB);
+				Wpb_Abstract_Backuper::get_backuper(Wpb_Abstract_Backuper::FILES) :
+				Wpb_Abstract_Backuper::get_backuper(Wpb_Abstract_Backuper::DB);
 
 			$backuper->download_backup();
+
+			$backuper->make_backup();
+			if ( $backuper->send_backup_to_email() ) {
+				Wpb_Admin_Notices::flash('E-mail has been sent.', Wpb_Admin_Notices::TYPE_SUCCESS);
+			} else {
+				Wpb_Admin_Notices::flash('E-mail not sent, please see the message above for details.', Wpb_Admin_Notices::TYPE_WARNING);
+			}
 		}
 
 		if ( $clean_temp_dir ) {
@@ -297,12 +303,9 @@ class Wpb_Admin {
 
 	private function register_settings_cron() {
 
-//		'settings_cron'     => self::TAB_CRON,
-//		'section_general'   => self::TAB_CRON . '-general',
-
 		$section_id = self::TAB_CRON . '-general';
-		$field_wpb_activate_schedule_files  = self::OPTION_BACKUP_ACTIVATE_SCHEDULE_FILES;
-		$field_wpb_activate_schedule_db     = self::OPTION_BACKUP_ACTIVATE_SCHEDULE_DB;
+		$field_wpb_activate_schedule_files  = Wpb_Abstract_Backuper::FILES;
+		$field_wpb_activate_schedule_db     = Wpb_Abstract_Backuper::DB;
 
 		add_settings_section(
 			$section_id,
@@ -325,7 +328,25 @@ class Wpb_Admin {
 			)
 		);
 
+		add_settings_field(
+			$field_wpb_activate_schedule_db,
+			'',
+			[$this, 'render_input'],
+			$section_id,
+			$section_id,
+			array(
+				'name'      => $field_wpb_activate_schedule_db,
+				'type'      => 'checkbox',
+				'value'     => true,
+				'label'     => '',
+			)
+		);
+
 		register_setting(self::TAB_CRON, $field_wpb_activate_schedule_files, [
+			'sanitize_callback' => [Wpb_Admin_Sanitizator::instance(), 'sanitize_checkbox']
+		]);
+
+		register_setting(self::TAB_CRON, $field_wpb_activate_schedule_db, [
 			'sanitize_callback' => [Wpb_Admin_Sanitizator::instance(), 'sanitize_checkbox']
 		]);
 	}

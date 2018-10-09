@@ -43,6 +43,15 @@ class Wpb_Admin_Notices {
 		}
 	}
 
+	/**
+	 * @param WP_Error $wp_error
+	 */
+	public function add_wp_mail_error_notice($wp_error) {
+		if ( Wpb_Helpers::is_plugin_page() ) {
+			self::print_notice($wp_error->get_error_message(), self::TYPE_ERROR);
+		}
+	}
+
 	public function maybe_add_flash_notice() {
 
 		$flash = self::flash('wpb_flash');

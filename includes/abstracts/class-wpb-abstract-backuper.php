@@ -2,8 +2,8 @@
 
 abstract class Wpb_Abstract_Backuper {
 
-	const TYPE_FILES    = 'files';
-	const TYPE_DB       = 'db';
+	const FILES = 'wpb_backup_files';
+	const DB    = 'wpb_backup_db';
 
 	/**
 	 * @param $type
@@ -12,9 +12,9 @@ abstract class Wpb_Abstract_Backuper {
 	 */
 	public static function get_backuper($type) {
 		switch ($type) {
-			case self::TYPE_FILES:
+			case self::FILES:
 				return Wpb_Files_Backuper::instance();
-			case self::TYPE_DB:
+			case self::DB:
 				return Wpb_Db_Backuper::instance();
 		}
 	}

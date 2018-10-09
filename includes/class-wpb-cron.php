@@ -11,20 +11,19 @@
  */
 class Wpb_Cron {
 
-	const EVENT_BACKUP_FILES    = 'wpb_cron_backup_files';
-	const EVENT_BACKUP_DB       = 'wpb_cron_backup_db';
-
 	/**
-	 * @param Wpb_Abstract_Backuper $backuper
+	 * @param string $backuper_type
 	 */
-	public function send_backup_to_email($backuper) {
-		$backuper->make_backup();
-		$backuper->send_backup_to_email();
+	public function send_backup_to_email($backuper_type) {
+		$backuper_type = Wpb_Abstract_Backuper::get_backuper($backuper_type);
+		$backuper_type->make_backup();
+		$backuper_type->send_backup_to_email();
 	}
 
 	public function define_cron_hooks() {
-		add_action(self::EVENT_BACKUP_FILES, [$this, 'send_backup_to_email']);
-		add_action(self::EVENT_BACKUP_DB, [$this, 'send_backup_to_email']);
+		add_action(Wpb_Abstract_Backuper::FILES, [$this, 'send_backup_to_email']);
+		add_action(Wpb_Abstract_Backuper::DB, [$this, 'send_backup_to_email']);
+		add_filter('cron_schedules', [$this, 'add_schedules']);
 	}
 
 	public function schedule_cron_events() {
@@ -32,21 +31,27 @@ class Wpb_Cron {
 		$recurrence_files   = 'hourly';
 		$recurrence_db      = 'hourly';
 
-		if( ! wp_next_scheduled(self::EVENT_BACKUP_FILES, [Wpb_Abstract_Backuper::TYPE_FILES] ) ) {
+		if (
+			get_option(Wpb_Abstract_Backuper::FILES, false) &&
+		    ! wp_next_scheduled(Wpb_Abstract_Backuper::FILES, [Wpb_Abstract_Backuper::FILES])
+		) {
 			wp_schedule_event(
 				time(),
 				$recurrence_files,
-				self::EVENT_BACKUP_FILES,
-				[Wpb_Abstract_Backuper::get_backuper(Wpb_Abstract_Backuper::TYPE_FILES)]
+				Wpb_Abstract_Backuper::FILES,
+				[Wpb_Abstract_Backuper::FILES]
 			);
 		}
 
-		if( ! wp_next_scheduled(self::EVENT_BACKUP_DB, [Wpb_Abstract_Backuper::TYPE_DB] ) ) {
+		if (
+			get_option(Wpb_Abstract_Backuper::DB, false) &&
+			! wp_next_scheduled(Wpb_Abstract_Backuper::DB, [Wpb_Abstract_Backuper::DB])
+		) {
 			wp_schedule_event(
 				time(),
 				$recurrence_db,
-				self::EVENT_BACKUP_DB,
-				[Wpb_Abstract_Backuper::get_backuper(Wpb_Abstract_Backuper::TYPE_DB)]
+				Wpb_Abstract_Backuper::DB,
+				[Wpb_Abstract_Backuper::DB]
 			);
 		}
 	}
@@ -66,8 +71,9 @@ class Wpb_Cron {
 		foreach ( $cron_option as $time => $tasks_by_time ) {
 			foreach ( $tasks_by_time as $name => $tasks ) {
 				// It's plugin's task.
-				if ( in_array($name, [self::EVENT_BACKUP_FILES, self::EVENT_BACKUP_DB]) ) {
+				if ( in_array($name, [Wpb_Abstract_Backuper::FILES, Wpb_Abstract_Backuper::DB]) ) {
 					$task = array_shift($tasks);
+					$plugin_cron_tasks[$name]['name']           = $name;
 					$plugin_cron_tasks[$name]['schedule']       = $task['schedule'];
 					$plugin_cron_tasks[$name]['args']           = $task['args'];
 					$plugin_cron_tasks[$name]['interval']       = $task['interval'];
@@ -86,9 +92,9 @@ class Wpb_Cron {
 	 */
 	public static function get_readable_name($event) {
 		switch ($event) {
-			case self::EVENT_BACKUP_FILES:
+			case Wpb_Abstract_Backuper::FILES:
 				return __('Create files backup and send by email', 'wpb');
-			case self::EVENT_BACKUP_DB:
+			case Wpb_Abstract_Backuper::DB:
 				return __('Create database backup and send by email', 'wpb');
 			default:
 				return __('Unknown', 'wpb');
@@ -110,5 +116,17 @@ class Wpb_Cron {
 		if ( in_array($schedule, array_keys($schedules)) ) {
 			return $schedules[$schedule]['display'];
 		}
+	}
+
+	public function add_schedules($schedules) {
+		$schedules['wpb_monthly'] = [
+			'interval'  => MONTH_IN_SECONDS,
+			'display'   => __('Once Monthly', 'wpb')
+		];
+		$schedules['wpb_twicemonthly'] = [
+			'interval'  => WEEK_IN_SECONDS * 2,
+			'display'   => __('Twice Monthly', 'wpb')
+		];
+		return $schedules;
 	}
 }

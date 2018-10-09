@@ -18,7 +18,7 @@
                 <td class="row-title">
 	                <?php Wpb_Admin::do_settings_section_field(
 		                $section_general,
-		                Wpb_Admin::OPTION_BACKUP_ACTIVATE_SCHEDULE_FILES
+		                $opt['name']
 	                ) ?>
                 </td>
                 <td><?php echo Wpb_Cron::get_readable_name($name) ?>
