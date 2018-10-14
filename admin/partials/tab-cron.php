@@ -40,7 +40,7 @@
                 <td>
                     <a class="button-secondary" href="<?php echo wp_nonce_url( Wpb_Helpers::plugin_url(
 	                    Wpb_Admin::TAB_CRON, ['wpb_send_to_email_'.$name => true]
-                    ), 'wpb_cron_tasks' ) ?>" title="<?php esc_attr_e( 'Send e-mail now' ); ?>"><?php esc_attr_e( 'Execute' ); ?></a>
+                    ), 'wpb_cron_tasks' ) ?>" title="<?php esc_attr_e( 'Send e-mail now', 'wpb' ); ?>"><?php esc_attr_e( 'Execute', 'wpb' ); ?></a>
                 </td>
             </tr>
             <?php $i++; ?>
