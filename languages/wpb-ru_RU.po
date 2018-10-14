@@ -1,17 +1,18 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: wpb\n"
-"POT-Creation-Date: 2018-10-14 19:34+0300\n"
-"PO-Revision-Date: 2018-10-14 19:34+0300\n"
+"Project-Id-Version: WPBackuper 1.0.0\n"
+"POT-Creation-Date: 2018-10-14 19:11+0300\n"
+"PO-Revision-Date: 2018-10-14 19:12+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: en\n"
+"Language: ru_RU\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.8.7.1\n"
 "X-Poedit-Basepath: ..\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Poedit-KeywordsList: __;_e;esc_attr__;esc_attr_e;esc_html__;esc_html_e\n"
 "X-Poedit-SearchPath-0: .\n"
 
@@ -21,194 +22,199 @@ msgid ""
 "WPBackuper Filesystem connection issue. See <a href=\"%1$s\">plugin status "
 "page</a> for details."
 msgstr ""
+"WPBackuper: ошибка подключения к файловой системе. Откройте <a href=\"%1$s"
+"\">страницу статуса плагина</a> для подробностей."
 
 #: admin/class-wpb-admin-notices.php:44
 msgid "Settings saved."
-msgstr ""
+msgstr "Настройки сохранены."
 
 #: admin/class-wpb-admin-notices.php:54
 #, php-format
 msgid "E-mail not sent: %1$s"
-msgstr ""
+msgstr "E-mail не отправлен: %1$s"
 
 #: admin/class-wpb-admin.php:58 admin/class-wpb-admin.php:59
 msgid "WPBackuper"
-msgstr ""
+msgstr "WPBackuper"
 
 #: admin/class-wpb-admin.php:77
 msgid "Settings"
-msgstr ""
+msgstr "Настройки"
 
 #: admin/class-wpb-admin.php:169
 msgid "Temp directory cleared."
-msgstr ""
+msgstr "Папка с временными файлами очищена."
 
 #: admin/class-wpb-admin.php:171
 msgid "Something went wrong while cleaning temp dir."
-msgstr ""
+msgstr "Произошла ошибка при очистке папки с временными файлами."
 
 #: admin/class-wpb-admin.php:178
 msgid "General"
-msgstr ""
+msgstr "Основные"
 
 #: admin/class-wpb-admin.php:179
 msgid "Cron Schedule"
-msgstr ""
+msgstr "Cron-расписание"
 
 #: admin/class-wpb-admin.php:180
 msgid "System Status"
-msgstr ""
+msgstr "Статус системы"
 
 #: admin/class-wpb-admin.php:215
 msgid "PHP version"
-msgstr ""
+msgstr "Версия PHP"
 
 #: admin/class-wpb-admin.php:222
 msgid "FS connected"
-msgstr ""
+msgstr "Файловая система подключена"
 
 #: admin/class-wpb-admin.php:223
 msgid "Is successfully connected to filesystem?"
-msgstr ""
+msgstr "Имеет ли плагин доступ к файловой системе?"
 
 #: admin/class-wpb-admin.php:225
 msgid "Yes"
-msgstr ""
+msgstr "Да"
 
 #: admin/class-wpb-admin.php:226
 msgid "No"
-msgstr ""
+msgstr "Нет"
 
 #: admin/class-wpb-admin.php:229
 msgid "ZipArchive"
-msgstr ""
+msgstr "ZipArchive"
 
 #: admin/class-wpb-admin.php:230
 msgid "Is ZipArchive PHP library available?"
-msgstr ""
+msgstr "PHP библиотека \"ZipArchive\" доступна?"
 
 #: admin/class-wpb-admin.php:232
 msgid "Available"
-msgstr ""
+msgstr "Доступна"
 
 #: admin/class-wpb-admin.php:233
 msgid "Not available. Using PclZip instead"
-msgstr ""
+msgstr "Недоступна. Используется PсlZip"
 
 #: admin/class-wpb-admin.php:236
 msgid "exec()"
-msgstr ""
+msgstr "exeс()"
 
 #: admin/class-wpb-admin.php:237
 msgid "Is PHP function exec() is available and allowed for execution?"
-msgstr ""
+msgstr "PHP функция exex() доступна и разрешена для использования?"
 
 #: admin/class-wpb-admin.php:239
 msgid "Available and allowed"
-msgstr ""
+msgstr "Доступна и разрешена"
 
 #: admin/class-wpb-admin.php:240
 msgid "Not available and (or) not allowed. Using $wpdb instead"
-msgstr ""
+msgstr "Не доступна и (или) не разрешена. Используется $wpdb"
 
 #: admin/class-wpb-admin.php:243
 msgid "Is normal WP installation?"
-msgstr ""
+msgstr "Обычная Wordpress установка?"
 
 #: admin/class-wpb-admin.php:244
 msgid "WP was installed with Bedrock or no?"
-msgstr ""
+msgstr "Wordpress установлен с помощью Bedroсk или нет?"
 
 #: admin/class-wpb-admin.php:246
 msgid "Common WP installation"
-msgstr ""
+msgstr "Обычная WP установка"
 
 #: admin/class-wpb-admin.php:247
 msgid "Bedrock WP installation"
-msgstr ""
+msgstr "Wordpress установлен через Bedroсk"
 
 #: admin/class-wpb-admin.php:255
 msgid "Directory for backups"
-msgstr ""
+msgstr "Папка для резервных копий"
 
 #: admin/class-wpb-admin.php:260
 #, php-format
 msgid "Dir <b>%s</b> is exists and writable"
-msgstr ""
+msgstr "Папка <b>%s</b> существует и доступна для записи"
 
 #: admin/class-wpb-admin.php:263
 #, php-format
 msgid "Dir <b>%s</b> is NOT writable"
-msgstr ""
+msgstr "Папка <b>%s</b> недоступна для записи"
 
 #: admin/class-wpb-admin.php:302 admin/class-wpb-admin.php:313
 msgid "E-mail to send a backup"
-msgstr ""
+msgstr "E-mail для отправки резервных копий"
 
 #: admin/class-wpb-admin.php:316
 #, php-format
 msgid "For example, %1$s"
-msgstr ""
+msgstr "Например, %1$s"
 
 #: admin/class-wpb-admin.php:432
 msgid "Enable"
-msgstr ""
+msgstr "Включить"
 
 #: admin/partials/tab-cron.php:8 admin/partials/tab-cron.php:51
 msgid "Activated"
-msgstr ""
+msgstr "Активно"
 
 #: admin/partials/tab-cron.php:9 admin/partials/tab-cron.php:52
 msgid "Event"
-msgstr ""
+msgstr "Событие"
 
 #: admin/partials/tab-cron.php:10 admin/partials/tab-cron.php:53
 msgid "Schedule"
-msgstr ""
+msgstr "Расписание"
 
 #: admin/partials/tab-cron.php:11 admin/partials/tab-cron.php:54
 msgid "Next execution in"
-msgstr ""
+msgstr "Следующее выполнение через:"
 
 #: admin/partials/tab-cron.php:12 admin/partials/tab-cron.php:55
 msgid "Execute now"
-msgstr ""
+msgstr "Выполнить сейчас"
 
 #: admin/partials/tab-cron.php:33
 msgid "In queue"
-msgstr ""
+msgstr "В очереди"
 
 #: admin/partials/tab-cron.php:43
 msgid "Send e-mail now"
-msgstr ""
+msgstr "Отправить e-mail сейчас"
 
 #: admin/partials/tab-cron.php:43
 msgid "Execute"
-msgstr ""
+msgstr "Выполнить"
 
 #: admin/partials/tab-general.php:12
 msgid "Create backup now and download via browser. This may take some time."
 msgstr ""
+"Создать резервную копию и скачать в браузере. Может занять некоторое время."
 
 #: admin/partials/tab-general.php:13
 msgid "Download files backup"
-msgstr ""
+msgstr "Скачать резервную копию файлов"
 
 #: admin/partials/tab-general.php:14
 msgid "Download database backup"
-msgstr ""
+msgstr "Скачать резервную копию базы даннх"
 
 #: admin/partials/tab-general.php:16
 msgid "Backups are save into temporary folder. You can clean this dir now."
 msgstr ""
+"Резервные копии сохраняютя во временную папку. Вы можете очистить эту папку "
+"сейчас."
 
 #: admin/partials/tab-general.php:17
 msgid "Clean temp dir"
-msgstr ""
+msgstr "Очистить временную папку"
 
 #: admin/partials/tab-status.php:15
 msgid "Filesystem connection problem"
-msgstr ""
+msgstr "Проблема соединения с файловой системой"
 
 #: admin/partials/tab-status.php:19
 msgid ""
@@ -240,10 +246,37 @@ msgid ""
 "define( \"FTP_PRIKEY\", \"/home/username/.ssh/id_rsa\" );\n"
 "</pre>\n"
 msgstr ""
+"\n"
+"<p>Невозможно получить доступ к файловой системе. <b>Создание резевных копий "
+"(в т.ч. по сron-расписанию) не будет работать</b>. Вы должны указать учётные "
+"данные для соединения .</p>\n"
+"<p>Сделать это можно в файле <code>wp-config.php</code>.</p>\n"
+"\n"
+"<p>Используйте следующие опции, чтобы сохранить учётные данные от FTP или "
+"SSH:</p>\n"
+"\n"
+"<ol>\n"
+"<li><code>FTP_HOST</code>: Имя хоста.</li>\n"
+"<li><code>FTP_USER</code>: Имя пользователя.</li>\n"
+"<li><code>FTP_PASS</code>: Пароль.</li>\n"
+"<li><code>FTP_PUBKEY</code>: Путь к публичному ключу (в случае подключения "
+"по SSH).</li>\n"
+"<li><code>FTP_PRIKEY</code>: Путь к приватному ключу (в случае подключения "
+"по SSH).</li>\n"
+"</ol>\n"
+"\n"
+"<p>Например:<p>\n"
+"<pre class=\"programmlisting\">\n"
+"define( \"FTP_HOST\", \"ftp.example.org\" );\n"
+"define( \"FTP_USER\", \"username\" );\n"
+"define( \"FTP_PASS\", \"password\" );\n"
+"define( \"FTP_PUBKEY\", \"/home/username/.ssh/id_rsa.pub\" );\n"
+"define( \"FTP_PRIKEY\", \"/home/username/.ssh/id_rsa\" );\n"
+"</pre>\n"
 
 #: admin/partials/tab-status.php:62
 msgid "Addition information links"
-msgstr ""
+msgstr "Дополнительная информация"
 
 #: admin/partials/tab-status.php:66
 msgid ""
@@ -255,100 +288,108 @@ msgid ""
 "<a href=\"https://codex.wordpress.org/Filesystem_API\">Filesystem API docs</"
 "a>\n"
 msgstr ""
+"\n"
+"<a href=\"https://codex.wordpress.org/Editing_wp-config."
+"php#WordPress_Upgrade_Constants\">Редактирование wp-config.php (Codex)</"
+"a><br />\n"
+"<a href=\"https://roots.io/bedrock/docs/configuration-files/"
+"\">Конфигурационные файлы (Bedrock)</a><br />\n"
+"<a href=\"https://codex.wordpress.org/Filesystem_API\">Документация по "
+"Wordpress API</a>\n"
 
 #: admin/partials/tab-status.php:96 admin/partials/tab-status.php:114
 msgid "Name"
-msgstr ""
+msgstr "Имя"
 
 #: admin/partials/tab-status.php:97 admin/partials/tab-status.php:115
 msgid "Status"
-msgstr ""
+msgstr "Статус"
 
 #: includes/class-wpb-cron.php:76 includes/class-wpb-cron.php:77
 #: includes/class-wpb-cron.php:83 includes/class-wpb-cron.php:84
 msgid "Not set"
-msgstr ""
+msgstr "Не задано"
 
 #: includes/class-wpb-cron.php:113
 msgid "Create files backup and send by email"
-msgstr ""
+msgstr "Создать резевную копию файлов и отправить по e-mail"
 
 #: includes/class-wpb-cron.php:115
 msgid "Create database backup and send by email"
-msgstr ""
+msgstr "Создать резервную копию базы данных и отправить по e-mail"
 
 #: includes/class-wpb-cron.php:117 includes/class-wpb-cron.php:137
 msgid "Unknown"
-msgstr ""
+msgstr "Неизвестно"
 
 #: includes/class-wpb-cron.php:143
 msgid "Once Monthly"
-msgstr ""
+msgstr "Ежемесячно"
 
 #: includes/class-wpb-cron.php:147
 msgid "Twice Monthly"
-msgstr ""
+msgstr "Дважды в месяц"
 
 #: includes/class-wpb-cron.php:151
 msgid "Every Minute"
-msgstr ""
+msgstr "Каждую минуту"
 
 #: includes/class-wpb-cron.php:178
 msgid "Select schedule..."
-msgstr ""
+msgstr "Выберите расписание"
 
 #: includes/class-wpb-db-backuper.php:58 includes/class-wpb-db-backuper.php:82
 #: includes/class-wpb-db-backuper.php:165
 #: includes/class-wpb-files-backuper.php:61
 #: includes/class-wpb-files-backuper.php:102 includes/class-wpb-zipper.php:131
 msgid "FS not connected"
-msgstr ""
+msgstr "Файловая система не поключена"
 
 #: includes/class-wpb-db-backuper.php:103
 msgid "WPBackup: your WP DB backup"
-msgstr ""
+msgstr "WPBackup: резервная копия базы данных"
 
 #: includes/class-wpb-db-backuper.php:107
 msgid "Howdy! Here your backup of WordPress Database."
-msgstr ""
+msgstr "Привет! Вот Ваша резервная копия базы данных."
 
 #: includes/class-wpb-db-backuper.php:119
 #: includes/class-wpb-files-backuper.php:146
 msgid "Something went wrong while sending email via wp_mail"
-msgstr ""
+msgstr "Что-то пошло не так при отправке e-mail через wp_mail"
 
 #: includes/class-wpb-db-backuper.php:145
 msgid "Something went wrong while executing \"mysqldump\""
-msgstr ""
+msgstr "Что-то пошло не так при выполнении \"mysqldump\""
 
 #: includes/class-wpb-db-backuper.php:259
 msgid "Something went wrong while touch temp file"
-msgstr ""
+msgstr "Что-то пошло не так во время выполнения \"touсh\" к временному файлу."
 
 #: includes/class-wpb-db-backuper.php:264
 msgid "Something went wrong while put sql content to temp file"
-msgstr ""
+msgstr "Что-то пошло не так при записи SQL-строки во временный файл"
 
 #: includes/class-wpb-files-backuper.php:83
 msgid "Something went wrong while getting list files for backup"
-msgstr ""
+msgstr "Что-то пошло не так при получении файлов для создания резервной копии"
 
 #: includes/class-wpb-files-backuper.php:130
 msgid "WPBackup: your WP files backup"
-msgstr ""
+msgstr "WPBackup: резервная копия файлов"
 
 #: includes/class-wpb-files-backuper.php:134
 msgid "Howdy! Here your backup of WordPress files."
-msgstr ""
+msgstr "Привет! Вот Ваша резервная копия файлов."
 
 #: includes/class-wpb-zipper.php:158
 msgid "ZipArchive: Something went wrong while closing archive"
-msgstr ""
+msgstr "ZipArchive: что-то пошло не так при закрытии архива"
 
 #: includes/class-wpb-zipper.php:163
 msgid "Something went wrong while archivation via ZipArchive"
-msgstr ""
+msgstr "Что-то пошло не так во время архивации через ZipArchive"
 
 #: includes/class-wpb-zipper.php:171
 msgid "Archivation via PclZip not supported for now... "
-msgstr ""
+msgstr "Архивация через PclZip пока не поддерживается..."

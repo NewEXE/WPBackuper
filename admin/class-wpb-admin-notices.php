@@ -33,7 +33,7 @@ class Wpb_Admin_Notices {
 			$msg = sprintf(
 			/* translators: 1: Admin URL to plugin status page */
 				__( 'WPBackuper Filesystem connection issue. See <a href="%1$s">plugin status page</a> for details.' ),
-				Wpb_Helpers::plugin_url(Wpb_Admin::TAB_STATUS)
+				esc_url(Wpb_Helpers::plugin_url(Wpb_Admin::TAB_STATUS))
 			);
 			self::print_notice($msg, self::TYPE_ERROR);
 		}
@@ -41,7 +41,7 @@ class Wpb_Admin_Notices {
 
 	public function maybe_add_settings_updated_notice() {
 		if ( Wpb_Helpers::get_var('settings-updated', false) && Wpb_Helpers::is_plugin_page() ) {
-			$msg = __('Settings saved.', 'wpb');
+			$msg = __('Settings saved.');
 			self::print_notice($msg, self::TYPE_SUCCESS);
 		}
 	}
@@ -51,7 +51,7 @@ class Wpb_Admin_Notices {
 	 */
 	public function add_wp_mail_error_notice($wp_error) {
 		if ( Wpb_Helpers::is_plugin_page() ) {
-			self::flash(__('E-mail not sent: ', 'wpb') . $wp_error->get_error_message(), self::TYPE_ERROR);
+			self::flash(sprintf(__('E-mail not sent: %1$s', 'wpb'), $wp_error->get_error_message()), self::TYPE_ERROR);
 		}
 	}
 

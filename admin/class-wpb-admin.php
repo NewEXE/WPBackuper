@@ -71,7 +71,11 @@ class Wpb_Admin {
 	 */
 	public function add_settings_link( $actions ) {
 
-		$actions[] = '<a href=' . '"' . Wpb_Helpers::plugin_url() . '"' . '>' . __('Settings', 'wpb') . '</a>';
+		$actions[] = sprintf(
+			'<a href="%1$s">%2$s</a>',
+			esc_url(Wpb_Helpers::plugin_url()),
+			__('Settings', 'wpb')
+		);
 
 		return $actions;
 	}
@@ -252,10 +256,10 @@ class Wpb_Admin {
 				'hint'              => 'Full path to temp directory for backups.',
 				'true'              => Wpb_Helpers::is_temp_dir_writable(),
 				'description_true'  =>
-				/* translators: %s: template name */
+				/* translators: %s: dir path */
 					sprintf(__('Dir <b>%s</b> is exists and writable', 'wpb'), $tmp_dir),
 				'description_false'  =>
-				/* translators: %s: template name */
+				/* translators: %s: dir path */
 					sprintf(__('Dir <b>%s</b> is NOT writable', 'wpb'), $tmp_dir),
 			];
 		}
@@ -308,7 +312,8 @@ class Wpb_Admin {
 					'placeholder' => $default_email,
 					'title'       => __('E-mail to send a backup', 'wpb')
 				),
-				'description' => __('For example, ' . $default_email, 'wpb') // sprintf
+				/* translators: 1: default e-mail address */
+				'description' => sprintf(esc_html__('For example, %1$s', 'wpb'), $default_email),
 			)
 		);
 
@@ -373,11 +378,11 @@ class Wpb_Admin {
 		]);
 
 		register_setting(self::TAB_CRON, $field_wpb_schedule_files, [
-			'sanitize_callback' => [Wpb_Admin_Sanitizator::instance(), 'sanitize_text_field']
+			'sanitize_callback' => [Wpb_Admin_Sanitizator::instance(), 'sanitize_schedule_name']
 		]);
 
 		register_setting(self::TAB_CRON, $field_wpb_schedule_db, [
-			'sanitize_callback' => [Wpb_Admin_Sanitizator::instance(), 'sanitize_text_field']
+			'sanitize_callback' => [Wpb_Admin_Sanitizator::instance(), 'sanitize_schedule_name']
 		]);
 	}
 

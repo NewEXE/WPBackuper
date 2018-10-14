@@ -55,16 +55,16 @@ class Wpb_Helpers
 	 */
 	public static function current_url($with_query_args = true, $save_flash = true) {
 		if ( $with_query_args ) {
-			return home_url(add_query_arg(null, null));
-		}
-
-		$url = home_url(parse_url(self::server_var('REQUEST_URI'), PHP_URL_PATH));
-		if ( self::is_plugin_page() ) {
-			// Restore 'page' and 'tab' query vars.
-			$url = add_query_arg([
-				'page' => Wpb_Admin::PAGE_KEY,
-				'tab' => self::get_var('tab', Wpb_Admin::TAB_GENERAL)
-			], $url);
+			$url = home_url(add_query_arg(null, null));
+		} else {
+			$url = home_url(parse_url(self::server_var('REQUEST_URI'), PHP_URL_PATH));
+			if ( self::is_plugin_page() ) {
+				// Restore 'page' and 'tab' query vars.
+				$url = add_query_arg([
+					'page' => Wpb_Admin::PAGE_KEY,
+					'tab' => self::get_var('tab', Wpb_Admin::TAB_GENERAL)
+				], $url);
+			}
 		}
 
 		if ( $save_flash ) {

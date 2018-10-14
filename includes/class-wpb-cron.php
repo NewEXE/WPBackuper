@@ -73,15 +73,15 @@ class Wpb_Cron {
 				'name'              => Wpb_Abstract_Backuper::FILES,
 				'select_schedule'   => self::get_html_select_for_event(Wpb_Abstract_Backuper::FILES),
 				'args'              => [Wpb_Abstract_Backuper::FILES],
-				'interval'          => 'Not set',
-				'next_execution'    => 'Not set',
+				'interval'          => __('Not set', 'wpb'),
+				'next_execution'    => __('Not set', 'wpb'),
 			],
 			Wpb_Abstract_Backuper::DB => [
 				'name'              => Wpb_Abstract_Backuper::DB,
 				'select_schedule'   => self::get_html_select_for_event(Wpb_Abstract_Backuper::DB),
 				'args'              => [Wpb_Abstract_Backuper::DB],
-				'interval'          => 'Not set',
-				'next_execution'    => 'Not set',
+				'interval'          => __('Not set', 'wpb'),
+				'next_execution'    => __('Not set', 'wpb'),
 			],
 		];
 
@@ -181,6 +181,10 @@ class Wpb_Cron {
 		];
 
 		return Wpb_Admin::render_input($args, false);
+	}
+
+	public static function get_schedules_list() {
+		return array_keys(wp_get_schedules());
 	}
 
 	private function remove_cron_task($hook) {

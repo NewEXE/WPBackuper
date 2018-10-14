@@ -41,6 +41,17 @@ class Wpb_Admin_Sanitizator {
 		return sanitize_textarea_field($value);
 	}
 
+	public function sanitize_schedule_name($value) {
+		$value = Wpb_Helpers::sanitize($value);
+
+		$allowed_schedules = Wpb_Cron::get_schedules_list();
+		if ( ! in_array($value, $allowed_schedules) ) {
+			$value = 'wpb_monthly';
+		}
+
+		return $value;
+	}
+
 	/**
 	 * @param $value
 	 * @return string
