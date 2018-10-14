@@ -33,6 +33,14 @@ class Wpb_Admin_Sanitizator {
 		return self::$instance;
 	}
 
+	public function sanitize_text_field($value) {
+		return sanitize_text_field($value);
+	}
+
+	public function sanitize_textarea_field($value) {
+		return sanitize_textarea_field($value);
+	}
+
 	/**
 	 * @param $value
 	 * @return string

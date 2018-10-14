@@ -23,8 +23,11 @@ class Wpb_Admin_Notices {
 		// If we on plugin's status tab, showing notice is not necessary.
 		if ( Wpb_Helpers::is_plugin_page(Wpb_Admin::TAB_STATUS) ) return;
 
-		$needs_notice =
-			( Wpb_Helpers::is_plugin_page() || get_option(Wpb_Admin::OPTION_IS_CRON_SET, false) );
+		$needs_notice = (
+				Wpb_Helpers::is_plugin_page() ||
+				get_option(Wpb_Abstract_Backuper::DB, false) ||
+				get_option(Wpb_Abstract_Backuper::FILES, false)
+			);
 
 		if ( $needs_notice ) {
 			$msg = sprintf(
@@ -48,13 +51,12 @@ class Wpb_Admin_Notices {
 	 */
 	public function add_wp_mail_error_notice($wp_error) {
 		if ( Wpb_Helpers::is_plugin_page() ) {
-			self::print_notice($wp_error->get_error_message(), self::TYPE_ERROR);
+			self::flash(__('E-mail not sent: ', 'wpb') . $wp_error->get_error_message(), self::TYPE_ERROR);
 		}
 	}
 
 	public function maybe_add_flash_notice() {
-
-		$flash = self::flash('wpb_flash');
+		$flash = self::flash();
 
 		if ( $flash && Wpb_Helpers::is_plugin_page() ) {
 			foreach ($flash as $f) {
@@ -63,14 +65,22 @@ class Wpb_Admin_Notices {
 		}
 	}
 
-	public static function flash($message, $type = null) {
 
-		if ( ! is_null($type) ) { // 'Set' mode
-			$type = self::get_correct_type($type);
+	/**
+	 * @param string $message
+	 * @param string $type
+	 * @return array
+	 */
+	public static function flash() {
+		$args = func_get_args();
 
-			$_POST['wpb_flash'][] = compact('message', 'type');
-		} else { // 'Get' mode
-			return Wpb_Helpers::post_var('wpb_flash', false);
+		if ( count($args) === 0 ) {
+			return Wpb_Helpers::request_var('wpb_flash', false);
+		} elseif ( count($args) === 2 ) {
+			$message = $args[0];
+			$type = self::get_correct_type($args[1]);
+
+			$_REQUEST['wpb_flash'][] = compact('message', 'type');
 		}
 	}
 

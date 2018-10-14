@@ -48,10 +48,33 @@ class Wpb_Helpers
 	/**
 	 *
 	 *
+	 * @param bool $with_query_args
+	 * @param bool $save_flash
+	 *
 	 * @return string
 	 */
-	public static function current_url() {
-		return home_url(add_query_arg(null, null));
+	public static function current_url($with_query_args = true, $save_flash = true) {
+		if ( $with_query_args ) {
+			return home_url(add_query_arg(null, null));
+		}
+
+		$url = home_url(parse_url(self::server_var('REQUEST_URI'), PHP_URL_PATH));
+		if ( self::is_plugin_page() ) {
+			// Restore 'page' and 'tab' query vars.
+			$url = add_query_arg([
+				'page' => Wpb_Admin::PAGE_KEY,
+				'tab' => self::get_var('tab', Wpb_Admin::TAB_GENERAL)
+			], $url);
+		}
+
+		if ( $save_flash ) {
+			$flash = Wpb_Admin_Notices::flash();
+			if ( $flash ) {
+				$url = self::add_query_arg(['wpb_flash' => $flash], $url);
+			}
+		}
+
+		return $url;
 	}
 
 	/**
@@ -69,7 +92,7 @@ class Wpb_Helpers
 		$url = '';
 
 		if ( ! empty($parsed['scheme']) ) {
-			$sep = (strtolower($parsed['scheme']) == 'mailto' ? ':' : '://');
+			$sep = (strtolower($parsed['scheme']) === 'mailto' ? ':' : '://');
 			$url .= $parsed['scheme'] . $sep;
 		}
 
@@ -90,6 +113,81 @@ class Wpb_Helpers
 		if ( ! empty($parsed['fragment']) ) $url .= "#".$parsed['fragment'];
 
 		return $url;
+	}
+
+	/**
+	 * Based on add_query_arg(), but with http_build_query() instead of build_query().
+	 *
+	 * @see add_query_arg()
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string|array $key   Either a query variable key, or an associative array of query variables.
+	 * @param string       $value Optional. Either a query variable value, or a URL to act upon.
+	 * @param string       $url   Optional. A URL to act upon.
+	 * @return string New URL query string (unescaped).
+	 */
+	public static function add_query_arg() {
+		$args = func_get_args();
+		if ( is_array( $args[0] ) ) {
+			if ( count( $args ) < 2 || false === $args[1] )
+				$uri = $_SERVER['REQUEST_URI'];
+			else
+				$uri = $args[1];
+		} else {
+			if ( count( $args ) < 3 || false === $args[2] )
+				$uri = $_SERVER['REQUEST_URI'];
+			else
+				$uri = $args[2];
+		}
+
+		if ( $frag = strstr( $uri, '#' ) )
+			$uri = substr( $uri, 0, -strlen( $frag ) );
+		else
+			$frag = '';
+
+		if ( 0 === stripos( $uri, 'http://' ) ) {
+			$protocol = 'http://';
+			$uri = substr( $uri, 7 );
+		} elseif ( 0 === stripos( $uri, 'https://' ) ) {
+			$protocol = 'https://';
+			$uri = substr( $uri, 8 );
+		} else {
+			$protocol = '';
+		}
+
+		if ( strpos( $uri, '?' ) !== false ) {
+			list( $base, $query ) = explode( '?', $uri, 2 );
+			$base .= '?';
+		} elseif ( $protocol || strpos( $uri, '=' ) === false ) {
+			$base = $uri . '?';
+			$query = '';
+		} else {
+			$base = '';
+			$query = $uri;
+		}
+
+		wp_parse_str( $query, $qs );
+		$qs = urlencode_deep( $qs ); // this re-URL-encodes things that were already in the query string
+		if ( is_array( $args[0] ) ) {
+			foreach ( $args[0] as $k => $v ) {
+				$qs[ $k ] = $v;
+			}
+		} else {
+			$qs[ $args[0] ] = $args[1];
+		}
+
+		foreach ( $qs as $k => $v ) {
+			if ( $v === false )
+				unset( $qs[$k] );
+		}
+
+		$ret = http_build_query( $qs );
+		$ret = trim( $ret, '?' );
+		$ret = preg_replace( '#=(&|$)#', '$1', $ret );
+		$ret = $protocol . $base . $ret . $frag;
+		$ret = rtrim( $ret, '?' );
+		return $ret;
 	}
 
 	/**
@@ -160,6 +258,20 @@ class Wpb_Helpers
 	public static function request_var($key, $default = '') {
 
 		$value = self::input_var($key, 'REQUEST', $default);
+
+		return $value;
+	}
+
+	/**
+	 * Get the input SESSION var with sanitization.
+	 *
+	 * @param $key
+	 * @param string $default
+	 * @return array|string
+	 */
+	public static function session_var($key, $default = '') {
+
+		$value = self::input_var($key, 'SESSION', $default);
 
 		return $value;
 	}
@@ -529,8 +641,9 @@ class Wpb_Helpers
 		$supported = [
 			'GET',
 			'POST',
-			'COOKIE',
 			'REQUEST',
+			'COOKIE',
+			'SESSION',
 			'SERVER',
 			'ENV'
 		];

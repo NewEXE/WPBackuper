@@ -54,6 +54,21 @@ class Wpb_Db_Backuper extends Wpb_Abstract_Backuper {
 	 */
 	public function make_backup() {
 
+		if ( ! Wpb_Helpers::is_fs_connected() ) {
+			$this->errors->add('fs_not_connected', __('FS not connected', 'wpb'));
+			return false;
+		}
+
+		/**
+		 * @var WP_Filesystem_Base $wp_filesystem
+		 */
+		global $wp_filesystem;
+
+		// Backup is created, so bail.
+		if ( $wp_filesystem->is_file($this->archiver->get_archive_fullpath()) ) {
+			return;
+		}
+
 		if ( Wpb_Helpers::is_exec_available() ) {
 			return $this->create_archive_via_mysqldump();
 		} else {

@@ -24,9 +24,7 @@ class Wpb_Admin {
 	const TAB_STATUS    = self::PAGE_KEY . '-status';
 
 	// Options
-	const OPTION_BACKUP_EMAIL                   = 'wpb_backup_email';
-
-	const OPTION_IS_CRON_SET                    = 'wpb_is_cron_set';
+	const OPTION_BACKUP_EMAIL = 'wpb_backup_email';
 
 	public function __construct( ) {  }
 
@@ -114,14 +112,15 @@ class Wpb_Admin {
 	}
 
 	public function general_tasks() {
+		if ( ! Wpb_Helpers::is_plugin_page(self::TAB_GENERAL) ) return;
+
 		$backup_files   = Wpb_Helpers::post_var('wpb_backup_files', false);
 		$backup_db      = Wpb_Helpers::post_var('wpb_backup_db', false);
 		$clean_temp_dir = Wpb_Helpers::post_var('wpb_clean_temp_dir', false);
 
 		if ( $backup_files || $backup_db || $clean_temp_dir )  {
-			// The task performing is requested, so check nonce, page and user permissions.
+			// The task performing is requested, so check nonce and user permissions.
 			check_admin_referer('wpb_general_tasks', 'wpb_general_tasks');
-			if ( ! Wpb_Helpers::is_plugin_page(self::TAB_GENERAL) ) return;
 			if ( ! Wpb_Helpers::is_admin() ) return;
 		}
 
@@ -131,17 +130,33 @@ class Wpb_Admin {
 				Wpb_Abstract_Backuper::get_backuper(Wpb_Abstract_Backuper::DB);
 
 			$backuper->download_backup();
-
-			$backuper->make_backup();
-			if ( $backuper->send_backup_to_email() ) {
-				Wpb_Admin_Notices::flash('E-mail has been sent.', Wpb_Admin_Notices::TYPE_SUCCESS);
-			} else {
-				Wpb_Admin_Notices::flash('E-mail not sent, please see the message above for details.', Wpb_Admin_Notices::TYPE_WARNING);
-			}
 		}
 
 		if ( $clean_temp_dir ) {
 			$this->clean_temp_dir();
+		}
+	}
+
+	public function cron_tasks() {
+		if ( ! Wpb_Helpers::is_plugin_page(self::TAB_CRON) ) return;
+
+		$send_files_to_email    = Wpb_Helpers::get_var('wpb_send_to_email_'.Wpb_Abstract_Backuper::FILES, false);
+		$send_db_to_email       = Wpb_Helpers::get_var('wpb_send_to_email_'.Wpb_Abstract_Backuper::DB, false);
+
+		if ( $send_files_to_email || $send_db_to_email )  {
+			// The task performing is requested, so check nonce and user permissions.
+			check_admin_referer('wpb_cron_tasks');
+			if ( ! Wpb_Helpers::is_admin() ) return;
+		}
+
+		if ( $send_files_to_email xor $send_db_to_email) {
+			$backuper = $send_files_to_email ?
+				Wpb_Abstract_Backuper::get_backuper(Wpb_Abstract_Backuper::FILES) :
+				Wpb_Abstract_Backuper::get_backuper(Wpb_Abstract_Backuper::DB);
+
+			$backuper->make_backup();
+			$backuper->send_backup_to_email();
+			wp_redirect(Wpb_Helpers::current_url(false));
 		}
 	}
 
@@ -173,12 +188,13 @@ class Wpb_Admin {
 
 	private function display_tab_cron() {
 
-		$plugin_cron_tasks = Wpb_Cron::get_plugin_cron_tasks();
+		$plugin_cron_tasks  = Wpb_Cron::get_plugin_cron_tasks();
 
 		$view_args = [
 			'settings_cron'     => self::TAB_CRON,
 			'section_general'   => self::TAB_CRON . '-general',
 			'plugin_cron_tasks' => $plugin_cron_tasks,
+			'select_html'       => $plugin_cron_tasks
 		];
 
 		echo self::render('tab-cron', $view_args);
@@ -307,6 +323,9 @@ class Wpb_Admin {
 		$field_wpb_activate_schedule_files  = Wpb_Abstract_Backuper::FILES;
 		$field_wpb_activate_schedule_db     = Wpb_Abstract_Backuper::DB;
 
+		$field_wpb_schedule_files   = 'wpb_schedule_' . Wpb_Abstract_Backuper::FILES;
+		$field_wpb_schedule_db      = 'wpb_schedule_' . Wpb_Abstract_Backuper::DB;
+
 		add_settings_section(
 			$section_id,
 			'',
@@ -342,12 +361,23 @@ class Wpb_Admin {
 			)
 		);
 
+		add_settings_field($field_wpb_schedule_files, '', '', $section_id, $section_id);
+		add_settings_field($field_wpb_schedule_db, '', '', $section_id, $section_id);
+
 		register_setting(self::TAB_CRON, $field_wpb_activate_schedule_files, [
 			'sanitize_callback' => [Wpb_Admin_Sanitizator::instance(), 'sanitize_checkbox']
 		]);
 
 		register_setting(self::TAB_CRON, $field_wpb_activate_schedule_db, [
 			'sanitize_callback' => [Wpb_Admin_Sanitizator::instance(), 'sanitize_checkbox']
+		]);
+
+		register_setting(self::TAB_CRON, $field_wpb_schedule_files, [
+			'sanitize_callback' => [Wpb_Admin_Sanitizator::instance(), 'sanitize_text_field']
+		]);
+
+		register_setting(self::TAB_CRON, $field_wpb_schedule_db, [
+			'sanitize_callback' => [Wpb_Admin_Sanitizator::instance(), 'sanitize_text_field']
 		]);
 	}
 
@@ -365,17 +395,20 @@ class Wpb_Admin {
 			extract($args);
 		}
 
-		//ob_start();
+		ob_start();
 		include Wpb_Helpers::path("admin/partials/$template_name.php");
-		//return ob_get_clean();
+		return ob_get_clean();
 	}
 
 	/**
 	 * Render input template file.
 	 *
 	 * @param array $args
+	 * @param bool $echo
+	 *
+	 * @return string|void
 	 */
-	public function render_input($args) {
+	public static function render_input($args, $echo = true) {
 
 		$args['default']        = isset($args['default']) ? $args['default'] : '';
 		$args['description']    = isset($args['description']) ? $args['description'] : '';
@@ -399,6 +432,8 @@ class Wpb_Admin {
 				if ( ! isset($args['max']) ) $args['max'] = '';
 				if ( ! isset($args['label']) ) $args['label'] = '';
 				break;
+			case 'select':
+				break;
 			default:
 				if ( ! isset($args['attributes']['type']) ) $args['attributes']['type'] = $type;
 				$type = 'text';
@@ -412,7 +447,11 @@ class Wpb_Admin {
 			}
 		}
 
-		echo self::render("inputs/$type", $args);
+		if ( $echo ) {
+			echo self::render("inputs/$type", $args);
+		} else {
+			return self::render("inputs/$type", $args);
+		}
 	}
 
 	/**

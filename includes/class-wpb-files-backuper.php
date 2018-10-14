@@ -62,6 +62,16 @@ class Wpb_Files_Backuper extends Wpb_Abstract_Backuper {
 			return false;
 		}
 
+		/**
+		 * @var WP_Filesystem_Base $wp_filesystem
+		 */
+		global $wp_filesystem;
+
+		// Backup is created, so bail.
+		if ( $wp_filesystem->is_file($this->archiver->get_archive_fullpath()) ) {
+			return;
+		}
+
 		$wp_dir = Wpb_Helpers::get_wp_dir();
 
 		//todo escape from list_files() that working correctly only with 'direct' FS

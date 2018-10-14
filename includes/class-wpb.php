@@ -230,6 +230,7 @@ class Wpb {
 		$this->loader->add_filter( 'plugin_action_links_' . $plugin_file, $plugin_admin, 'add_settings_link' );
 
 		$this->loader->add_action( 'load-tools_page_' . Wpb_Admin::PAGE_KEY, $plugin_admin, 'general_tasks' );
+		$this->loader->add_action( 'load-tools_page_' . Wpb_Admin::PAGE_KEY, $plugin_admin, 'cron_tasks' );
 	}
 
 	private function define_admin_notices_hooks() {
