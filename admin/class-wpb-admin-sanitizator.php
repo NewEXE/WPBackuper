@@ -46,7 +46,7 @@ class Wpb_Admin_Sanitizator {
 
 		$allowed_schedules = Wpb_Cron::get_schedules_list();
 		if ( ! in_array($value, $allowed_schedules) ) {
-			$value = 'wpb_monthly';
+			$value = Wpb_Cron::DEFAULT_SCHEDULE;
 		}
 
 		return $value;

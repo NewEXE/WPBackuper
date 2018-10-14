@@ -11,6 +11,8 @@
  */
 class Wpb_Cron {
 
+	const DEFAULT_SCHEDULE = 'wpb_monthly';
+
 	/**
 	 * @param string $backuper_type
 	 */
@@ -28,33 +30,37 @@ class Wpb_Cron {
 	}
 
 	public function schedule_cron_events() {
+		$files = Wpb_Abstract_Backuper::FILES;
+		$db = Wpb_Abstract_Backuper::DB;
 
 		if (
-			($option_files = get_option(Wpb_Abstract_Backuper::FILES, false)) &&
-		    ! wp_next_scheduled(Wpb_Abstract_Backuper::FILES, [Wpb_Abstract_Backuper::FILES])
+			($option_files = get_option($files, false)) &&
+		    ! wp_next_scheduled($files, [$files])
 		) {
+			$option_schedule_files = get_option('wpb_schedule_' . $files, self::DEFAULT_SCHEDULE);
 			wp_schedule_event(
-				time(),
-				get_option('wpb_schedule_' . Wpb_Abstract_Backuper::FILES, ''),
-				Wpb_Abstract_Backuper::FILES,
-				[Wpb_Abstract_Backuper::FILES]
+				time() + self::get_schedule_interval($option_schedule_files),
+				$option_schedule_files,
+				$files,
+				[$files]
 			);
 		} elseif ( ! $option_files ) {
-			$this->remove_cron_task(Wpb_Abstract_Backuper::FILES);
+			$this->remove_cron_task($files);
 		}
 
 		if (
-			($option_db = get_option(Wpb_Abstract_Backuper::DB, false)) &&
-			! wp_next_scheduled(Wpb_Abstract_Backuper::DB, [Wpb_Abstract_Backuper::DB])
+			($option_db = get_option($db, false)) &&
+			! wp_next_scheduled($db, [$db])
 		) {
+			$option_schedule_db = get_option('wpb_schedule_' . $db, self::DEFAULT_SCHEDULE);
 			wp_schedule_event(
-				time(),
-				get_option('wpb_schedule_' . Wpb_Abstract_Backuper::DB, ''),
-				Wpb_Abstract_Backuper::DB,
-				[Wpb_Abstract_Backuper::DB]
+				time() + self::get_schedule_interval($option_schedule_db),
+				$option_schedule_db,
+				$db,
+				[$db]
 			);
 		} elseif ( ! $option_db ) {
-			$this->remove_cron_task(Wpb_Abstract_Backuper::DB);
+			$this->remove_cron_task($db);
 		}
 	}
 
@@ -154,11 +160,17 @@ class Wpb_Cron {
 	}
 
 	public function clear_cron_task_hook($option, $old_value, $value) {
-		if ( $option === Wpb_Abstract_Backuper::DB && $value === '' ) {
+		if (
+			($option === 'wpb_schedule_' . Wpb_Abstract_Backuper::DB) ||
+			($option === Wpb_Abstract_Backuper::DB && $value === '')
+		) {
 			$this->remove_cron_task(Wpb_Abstract_Backuper::DB);
 		}
 
-		if ( $option === Wpb_Abstract_Backuper::FILES && $value === '' ) {
+		if (
+			($option === 'wpb_schedule_' . Wpb_Abstract_Backuper::FILES) ||
+			($option === Wpb_Abstract_Backuper::FILES && $value === '')
+		) {
 			$this->remove_cron_task(Wpb_Abstract_Backuper::FILES);
 		}
 	}
@@ -181,6 +193,18 @@ class Wpb_Cron {
 		];
 
 		return Wpb_Admin::render_input($args, false);
+	}
+
+	public static function get_schedule_interval($schedule_name) {
+		$schedules = wp_get_schedules();
+
+		foreach ( $schedules as $name => $schedule ) {
+			if ( $schedule_name === $name ) {
+				return $schedule['interval'];
+			}
+		}
+
+		return false;
 	}
 
 	public static function get_schedules_list() {
