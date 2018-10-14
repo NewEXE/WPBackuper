@@ -46,6 +46,7 @@ function activate_wpb() {
  * Fired during plugin deactivation.
  */
 function deactivate_wpb() {
+	Wpb_Cron::deactivate_cron_options();
 }
 
 register_activation_hook( __FILE__, 'activate_wpb' );
@@ -63,7 +64,7 @@ register_deactivation_hook( __FILE__, 'deactivate_wpb' );
 function run_wpb() {
 
 	// The core plugin class.
-	require WPB_PLUGIN_MAIN_DIR . 'includes/class-wpb.php';
+	require_once WPB_PLUGIN_MAIN_DIR . 'includes/class-wpb.php';
 
 	$plugin = new Wpb();
 	$plugin->run();

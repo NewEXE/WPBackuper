@@ -65,8 +65,19 @@ class Wpb_Cron {
 	}
 
 	/**
-	 * todo phpDoc
-	 * @return array
+	 * Returns formatted cron task that set by plugin.
+	 *
+	 * @return array {
+	 *     An associative array of cron tasks.
+	 *
+	 *     @type array {
+	 *         @type string $name               Wpb_Abstract_Backuper::FILES or Wpb_Abstract_Backuper::DB
+	 *         @type string $select_schedule    HTML select tag with schedules for event.
+	 *         @type array $args                Task args list.
+	 *         @type int|string $interval       Task interval or localized string 'Not set'.
+	 *         @type int|string $next_execution Task next execution time (timestamp) or localized string 'Not set'.
+	 *     }
+	 * }
 	 */
 	public static function get_plugin_cron_tasks() {
 		$cron_option = get_option('cron', []);
@@ -175,6 +186,14 @@ class Wpb_Cron {
 		}
 	}
 
+	/**
+	 * Returns HTML select tag with schedules for event.
+	 *
+	 * @param string $event Wpb_Abstract_Backuper::DB or Wpb_Abstract_Backuper::FILES
+	 * @param string $selected Selected schedule slug. Ex.: wpb_monthly
+	 *
+	 * @return string HTML select
+	 */
 	public static function get_html_select_for_event($event, $selected = '') {
 		$schedules = wp_get_schedules();
 
@@ -195,6 +214,12 @@ class Wpb_Cron {
 		return Wpb_Admin::render_input($args, false);
 	}
 
+	/**
+	 * Get recurrence interval (in seconds) for schedule slug.
+	 *
+	 * @param string $schedule_name Ex. hourly, wpb_monthly
+	 * @return int|false Interval in seconds or false. 3600 for hourly.
+	 */
 	public static function get_schedule_interval($schedule_name) {
 		$schedules = wp_get_schedules();
 
@@ -207,10 +232,29 @@ class Wpb_Cron {
 		return false;
 	}
 
+	/**
+	 * Get list of schedules (slugs).
+	 *
+	 * @return array    Slugs: wpb_monthly, wpb_twicemonthly,
+	 *                  wpb_everyminute, hourly, twicedaily, daily.
+	 */
 	public static function get_schedules_list() {
 		return array_keys(wp_get_schedules());
 	}
 
+	/**
+	 * Set tasks activation options to false.
+	 */
+	public static function deactivate_cron_options() {
+		update_option(Wpb_Abstract_Backuper::DB, false);
+		update_option(Wpb_Abstract_Backuper::FILES, false);
+	}
+
+	/**
+	 * Completely remove cron task (event) for emailing db/files backup.
+	 *
+	 * @param string $hook Wpb_Abstract_Backuper::DB or Wpb_Abstract_Backuper::FILES.
+	 */
 	private function remove_cron_task($hook) {
 		wp_clear_scheduled_hook($hook, [$hook]);
 	}
