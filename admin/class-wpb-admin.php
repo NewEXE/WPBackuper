@@ -246,6 +246,20 @@ class Wpb_Admin {
 				'description_true'  => __('Common WP installation', 'wpb'),
 				'description_false' => __('Bedrock WP installation', 'wpb'),
 			],
+			[
+				'name'              => __('WP_DEBUG', 'wpb'),
+				'hint'              => __('Is debug enabled?', 'wpb'),
+				'true'              => Wpb_Helpers::is_debug(),
+				'description_true'  => __('true', 'wpb'),
+				'description_false' => __('false', 'wpb'),
+			],
+			[
+				'name'              => __('WP_DEBUG_LOG', 'wpb'),
+				'hint'              => __('Is debug log enabled?', 'wpb'),
+				'true'              => Wpb_Helpers::is_debug_log(),
+				'description_true'  => __('true', 'wpb'),
+				'description_false' => __('false', 'wpb'),
+			],
 		];
 		if ( $is_fs_connected ) {
 

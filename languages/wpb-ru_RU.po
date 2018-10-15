@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPBackuper 1.0.0\n"
-"POT-Creation-Date: 2018-10-14 19:11+0300\n"
-"PO-Revision-Date: 2018-10-14 19:12+0300\n"
+"POT-Creation-Date: 2018-10-15 16:15+0300\n"
+"PO-Revision-Date: 2018-10-15 16:46+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ru_RU\n"
@@ -130,30 +130,54 @@ msgstr "Обычная WP установка"
 msgid "Bedrock WP installation"
 msgstr "Wordpress установлен через Bedroсk"
 
-#: admin/class-wpb-admin.php:255
+#: admin/class-wpb-admin.php:250
+msgid "WP_DEBUG"
+msgstr "WP_DEBUG"
+
+#: admin/class-wpb-admin.php:251
+msgid "Is debug enabled?"
+msgstr "Режим отладки включён?"
+
+#: admin/class-wpb-admin.php:253 admin/class-wpb-admin.php:260
+msgid "true"
+msgstr "true"
+
+#: admin/class-wpb-admin.php:254 admin/class-wpb-admin.php:261
+msgid "false"
+msgstr "false"
+
+#: admin/class-wpb-admin.php:257
+msgid "WP_DEBUG_LOG"
+msgstr "WP_DEBUG_LOG"
+
+#: admin/class-wpb-admin.php:258
+msgid "Is debug log enabled?"
+msgstr "Запись журнала отладки включена?"
+
+#: admin/class-wpb-admin.php:269
 msgid "Directory for backups"
 msgstr "Папка для резервных копий"
 
-#: admin/class-wpb-admin.php:260
+#: admin/class-wpb-admin.php:274
 #, php-format
 msgid "Dir <b>%s</b> is exists and writable"
 msgstr "Папка <b>%s</b> существует и доступна для записи"
 
-#: admin/class-wpb-admin.php:263
+#: admin/class-wpb-admin.php:277
 #, php-format
 msgid "Dir <b>%s</b> is NOT writable"
 msgstr "Папка <b>%s</b> недоступна для записи"
 
-#: admin/class-wpb-admin.php:302 admin/class-wpb-admin.php:313
+#: admin/class-wpb-admin.php:316 admin/class-wpb-admin.php:327
 msgid "E-mail to send a backup"
 msgstr "E-mail для отправки резервных копий"
 
-#: admin/class-wpb-admin.php:316
+#: admin/class-wpb-admin.php:330
 #, php-format
 msgid "For example, %1$s"
 msgstr "Например, %1$s"
 
-#: admin/class-wpb-admin.php:432
+#: admin/class-wpb-admin.php:446
 msgid "Enable"
 msgstr "Включить"
 
@@ -305,36 +329,36 @@ msgstr "Имя"
 msgid "Status"
 msgstr "Статус"
 
-#: includes/class-wpb-cron.php:76 includes/class-wpb-cron.php:77
-#: includes/class-wpb-cron.php:83 includes/class-wpb-cron.php:84
+#: includes/class-wpb-cron.php:93 includes/class-wpb-cron.php:94
+#: includes/class-wpb-cron.php:100 includes/class-wpb-cron.php:101
 msgid "Not set"
 msgstr "Не задано"
 
-#: includes/class-wpb-cron.php:113
+#: includes/class-wpb-cron.php:130
 msgid "Create files backup and send by email"
 msgstr "Создать резевную копию файлов и отправить по e-mail"
 
-#: includes/class-wpb-cron.php:115
+#: includes/class-wpb-cron.php:132
 msgid "Create database backup and send by email"
 msgstr "Создать резервную копию базы данных и отправить по e-mail"
 
-#: includes/class-wpb-cron.php:117 includes/class-wpb-cron.php:137
+#: includes/class-wpb-cron.php:134 includes/class-wpb-cron.php:154
 msgid "Unknown"
 msgstr "Неизвестно"
 
-#: includes/class-wpb-cron.php:143
+#: includes/class-wpb-cron.php:160
 msgid "Once Monthly"
-msgstr "Ежемесячно"
+msgstr "Каждый месяц"
 
-#: includes/class-wpb-cron.php:147
+#: includes/class-wpb-cron.php:164
 msgid "Twice Monthly"
-msgstr "Дважды в месяц"
+msgstr "Два раза в месяц"
 
-#: includes/class-wpb-cron.php:151
+#: includes/class-wpb-cron.php:168
 msgid "Every Minute"
 msgstr "Каждую минуту"
 
-#: includes/class-wpb-cron.php:178
+#: includes/class-wpb-cron.php:209
 msgid "Select schedule..."
 msgstr "Выберите расписание"
 

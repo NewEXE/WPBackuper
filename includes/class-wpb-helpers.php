@@ -689,6 +689,14 @@ class Wpb_Helpers
 		return $html;
 	}
 
+	public static function is_debug() {
+		return defined('WP_DEBUG') && WP_DEBUG;
+	}
+
+	public static function is_debug_log() {
+		return defined('WP_DEBUG_LOG') && WP_DEBUG_LOG;
+	}
+
 }
 
 /**
