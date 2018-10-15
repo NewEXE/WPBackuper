@@ -15,11 +15,24 @@ class Wpb_Cron {
 
 	/**
 	 * @param string $backuper_type
+	 *
+	 * @return bool
 	 */
 	public function send_backup_to_email($backuper_type) {
-		$backuper_type = Wpb_Abstract_Backuper::get_backuper($backuper_type);
-		$backuper_type->make_backup();
-		$backuper_type->send_backup_to_email();
+		$backuper = Wpb_Abstract_Backuper::get_backuper($backuper_type);
+		$backuper->make_backup();
+		$sent = $backuper->send_backup_to_email();
+
+		self::log('$sent:');
+		self::log($sent);
+
+		self::log('$backuper:');
+		self::log($backuper);
+
+		self::log('wp_doing_cron():');
+		self::log(Wpb_Helpers::wp_doing_cron());
+
+		return $sent;
 	}
 
 	public function define_cron_hooks() {
@@ -248,6 +261,45 @@ class Wpb_Cron {
 	public static function deactivate_cron_options() {
 		update_option(Wpb_Abstract_Backuper::DB, false);
 		update_option(Wpb_Abstract_Backuper::FILES, false);
+	}
+
+	/**
+	 * @param mixed $data Any data.
+	 */
+	public static function log($data) {
+		if ( ! Wpb_Helpers::is_debug() ) {
+			return;
+		}
+
+		$data_type = gettype($data);
+		$datetime = date('Y-m-d H:i:s');
+
+		if ( is_array($data) ) {
+			$data = json_encode($data);
+		} elseif ( is_object($data) ) {
+			$data = print_r($data, true);
+		} elseif (is_resource($data)) {
+			$data_type .= ' (' . get_resource_type($data) . ')';
+			$data = (string) $data;
+		} elseif ( is_bool($data) ) {
+			$data = $data ? 'true' : 'false';
+		} elseif ( is_null($data) ) {
+			$data = 'null';
+		} else {
+			if ( ! settype($data, 'string') ) {
+				$data = 'Logger error: can not convert input data to string';
+			}
+		}
+
+		if ( $data === '' ) {
+			$data = 'empty';
+		}
+
+		$data = "[$datetime] [$data_type] " . $data . PHP_EOL;
+
+		$dir = Wpb_Helpers::path('content');
+		$file = 'cron.log';
+		file_put_contents("$dir/$file", $data, FILE_APPEND);
 	}
 
 	/**

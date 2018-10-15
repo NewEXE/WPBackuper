@@ -117,9 +117,9 @@ class Wpb_Files_Backuper extends Wpb_Abstract_Backuper {
 	}
 
 	/**
-	 * @param null $subject
-	 * @param null $message
-	 * @param null $headers
+	 * @param string $subject
+	 * @param string $message
+	 * @param string $headers
 	 *
 	 * @return bool
 	 */

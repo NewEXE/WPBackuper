@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPBackuper 1.0.0\n"
-"POT-Creation-Date: 2018-10-15 19:43+0300\n"
-"PO-Revision-Date: 2018-10-15 19:47+0300\n"
+"POT-Creation-Date: 2018-10-15 21:33+0300\n"
+"PO-Revision-Date: 2018-10-15 21:33+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ru_RU\n"
@@ -42,158 +42,158 @@ msgstr "WPBackuper"
 msgid "Settings"
 msgstr "Настройки"
 
-#: admin/class-wpb-admin.php:163
+#: admin/class-wpb-admin.php:161
 msgid "E-mail has been sent."
 msgstr "E-mail отправлен."
 
-#: admin/class-wpb-admin.php:171
+#: admin/class-wpb-admin.php:170
 msgid "Temp directory cleared."
 msgstr "Папка с временными файлами очищена."
 
-#: admin/class-wpb-admin.php:173
+#: admin/class-wpb-admin.php:172
 msgid "Something went wrong while cleaning temp dir."
 msgstr "Произошла ошибка при очистке папки с временными файлами."
 
-#: admin/class-wpb-admin.php:180
+#: admin/class-wpb-admin.php:179
 msgid "General"
 msgstr "Основные"
 
-#: admin/class-wpb-admin.php:181
+#: admin/class-wpb-admin.php:180
 msgid "Cron Schedule"
 msgstr "Cron-расписание"
 
-#: admin/class-wpb-admin.php:182
+#: admin/class-wpb-admin.php:181
 msgid "System Status"
 msgstr "Статус системы"
 
-#: admin/class-wpb-admin.php:217
+#: admin/class-wpb-admin.php:216
 msgid "PHP version"
 msgstr "Версия PHP"
 
-#: admin/class-wpb-admin.php:224
+#: admin/class-wpb-admin.php:223
 msgid "FS connected"
 msgstr "Файловая система подключена"
 
-#: admin/class-wpb-admin.php:225
+#: admin/class-wpb-admin.php:224
 msgid "Is successfully connected to filesystem?"
 msgstr "Имеет ли плагин доступ к файловой системе?"
 
-#: admin/class-wpb-admin.php:227
+#: admin/class-wpb-admin.php:226
 msgid "Yes"
 msgstr "Да"
 
-#: admin/class-wpb-admin.php:228
+#: admin/class-wpb-admin.php:227
 msgid "No"
 msgstr "Нет"
 
-#: admin/class-wpb-admin.php:231
+#: admin/class-wpb-admin.php:230
 msgid "ZipArchive"
 msgstr "ZipArchive"
 
-#: admin/class-wpb-admin.php:232
+#: admin/class-wpb-admin.php:231
 msgid "Is ZipArchive PHP library available?"
 msgstr "PHP библиотека \"ZipArchive\" доступна?"
 
-#: admin/class-wpb-admin.php:234
+#: admin/class-wpb-admin.php:233
 msgid "Available"
 msgstr "Доступна"
 
-#: admin/class-wpb-admin.php:235
+#: admin/class-wpb-admin.php:234
 msgid "Not available. Using PclZip instead"
 msgstr "Недоступна. Используется PсlZip"
 
-#: admin/class-wpb-admin.php:238
+#: admin/class-wpb-admin.php:237
 msgid "exec()"
 msgstr "exeс()"
 
-#: admin/class-wpb-admin.php:239
+#: admin/class-wpb-admin.php:238
 msgid "Is PHP function exec() is available and allowed for execution?"
 msgstr "PHP функция exex() доступна и разрешена для использования?"
 
-#: admin/class-wpb-admin.php:241
+#: admin/class-wpb-admin.php:240
 msgid "Available and allowed"
 msgstr "Доступна и разрешена"
 
-#: admin/class-wpb-admin.php:242
+#: admin/class-wpb-admin.php:241
 msgid "Not available and (or) not allowed. Using $wpdb instead"
 msgstr "Не доступна и (или) не разрешена. Используется $wpdb"
 
-#: admin/class-wpb-admin.php:245
+#: admin/class-wpb-admin.php:244
 msgid "Is normal WP installation?"
 msgstr "Обычная Wordpress установка?"
 
-#: admin/class-wpb-admin.php:246
+#: admin/class-wpb-admin.php:245
 msgid "WP was installed with Bedrock or no?"
 msgstr "Wordpress установлен с помощью Bedroсk или нет?"
 
-#: admin/class-wpb-admin.php:248
+#: admin/class-wpb-admin.php:247
 msgid "Common WP installation"
 msgstr "Обычная WP установка"
 
-#: admin/class-wpb-admin.php:249
+#: admin/class-wpb-admin.php:248
 msgid "Bedrock WP installation"
 msgstr "Wordpress установлен через Bedroсk"
 
-#: admin/class-wpb-admin.php:252
+#: admin/class-wpb-admin.php:251
 msgid "WP_DEBUG"
 msgstr "WP_DEBUG"
 
-#: admin/class-wpb-admin.php:253
+#: admin/class-wpb-admin.php:252
 msgid "Is debug enabled?"
 msgstr "Режим отладки включён?"
 
-#: admin/class-wpb-admin.php:255 admin/class-wpb-admin.php:262
+#: admin/class-wpb-admin.php:254 admin/class-wpb-admin.php:261
 msgid "true"
 msgstr "true"
 
-#: admin/class-wpb-admin.php:256 admin/class-wpb-admin.php:263
+#: admin/class-wpb-admin.php:255 admin/class-wpb-admin.php:262
 msgid "false"
 msgstr "false"
 
-#: admin/class-wpb-admin.php:259
+#: admin/class-wpb-admin.php:258
 msgid "WP_DEBUG_LOG"
 msgstr "WP_DEBUG_LOG"
 
-#: admin/class-wpb-admin.php:260
+#: admin/class-wpb-admin.php:259
 msgid "Is debug log enabled?"
 msgstr "Запись журнала отладки включена?"
 
-#: admin/class-wpb-admin.php:271
+#: admin/class-wpb-admin.php:270
 msgid "Directory for backups"
 msgstr "Папка для резервных копий"
 
-#: admin/class-wpb-admin.php:272
+#: admin/class-wpb-admin.php:271
 msgid "Full path to temp directory for backups."
 msgstr "Полный путь к папке с резервными копиями."
 
-#: admin/class-wpb-admin.php:276
+#: admin/class-wpb-admin.php:275
 #, php-format
 msgid "Dir <b>%s</b> is exists and writable"
 msgstr "Папка <b>%s</b> существует и доступна для записи"
 
-#: admin/class-wpb-admin.php:279
+#: admin/class-wpb-admin.php:278
 #, php-format
 msgid "Dir <b>%s</b> is NOT writable"
 msgstr "Папка <b>%s</b> недоступна для записи"
 
-#: admin/class-wpb-admin.php:285
+#: admin/class-wpb-admin.php:284
 msgid "Log file path"
 msgstr "Путь к лог-файлу"
 
-#: admin/class-wpb-admin.php:286
+#: admin/class-wpb-admin.php:285
 msgid "Full path to log file"
 msgstr "Полный путь к лог-файлу"
 
-#: admin/class-wpb-admin.php:328 admin/class-wpb-admin.php:339
+#: admin/class-wpb-admin.php:327 admin/class-wpb-admin.php:338
 msgid "E-mail to send a backup"
 msgstr "E-mail для отправки резервных копий"
 
-#: admin/class-wpb-admin.php:342
+#: admin/class-wpb-admin.php:341
 #, php-format
 msgid "For example, %1$s"
 msgstr "Например, %1$s"
 
-#: admin/class-wpb-admin.php:458
+#: admin/class-wpb-admin.php:457
 msgid "Enable"
 msgstr "Включить"
 
@@ -345,68 +345,68 @@ msgstr "Имя"
 msgid "Status"
 msgstr "Статус"
 
-#: includes/class-wpb-cron.php:93 includes/class-wpb-cron.php:94
-#: includes/class-wpb-cron.php:100 includes/class-wpb-cron.php:101
+#: includes/class-wpb-cron.php:106 includes/class-wpb-cron.php:107
+#: includes/class-wpb-cron.php:113 includes/class-wpb-cron.php:114
 msgid "Not set"
 msgstr "Не задано"
 
-#: includes/class-wpb-cron.php:130
+#: includes/class-wpb-cron.php:143
 msgid "Create files backup and send by email"
 msgstr "Создать резевную копию файлов и отправить по e-mail"
 
-#: includes/class-wpb-cron.php:132
+#: includes/class-wpb-cron.php:145
 msgid "Create database backup and send by email"
 msgstr "Создать резервную копию базы данных и отправить по e-mail"
 
-#: includes/class-wpb-cron.php:134 includes/class-wpb-cron.php:154
+#: includes/class-wpb-cron.php:147 includes/class-wpb-cron.php:167
 msgid "Unknown"
 msgstr "Неизвестно"
 
-#: includes/class-wpb-cron.php:160
+#: includes/class-wpb-cron.php:173
 msgid "Once Monthly"
 msgstr "Каждый месяц"
 
-#: includes/class-wpb-cron.php:164
+#: includes/class-wpb-cron.php:177
 msgid "Twice Monthly"
 msgstr "Два раза в месяц"
 
-#: includes/class-wpb-cron.php:168
+#: includes/class-wpb-cron.php:181
 msgid "Every Minute"
 msgstr "Каждую минуту"
 
-#: includes/class-wpb-cron.php:209
+#: includes/class-wpb-cron.php:222
 msgid "Select schedule..."
 msgstr "Выберите расписание"
 
 #: includes/class-wpb-db-backuper.php:58 includes/class-wpb-db-backuper.php:82
-#: includes/class-wpb-db-backuper.php:165
+#: includes/class-wpb-db-backuper.php:172
 #: includes/class-wpb-files-backuper.php:61
 #: includes/class-wpb-files-backuper.php:102 includes/class-wpb-zipper.php:131
 msgid "FS not connected"
 msgstr "Файловая система не поключена"
 
-#: includes/class-wpb-db-backuper.php:103
+#: includes/class-wpb-db-backuper.php:110
 msgid "WPBackup: your WP DB backup"
 msgstr "WPBackup: резервная копия базы данных"
 
-#: includes/class-wpb-db-backuper.php:107
+#: includes/class-wpb-db-backuper.php:114
 msgid "Howdy! Here your backup of WordPress Database."
 msgstr "Привет! Вот Ваша резервная копия базы данных."
 
-#: includes/class-wpb-db-backuper.php:119
+#: includes/class-wpb-db-backuper.php:126
 #: includes/class-wpb-files-backuper.php:146
 msgid "Something went wrong while sending email via wp_mail"
 msgstr "Что-то пошло не так при отправке e-mail через wp_mail"
 
-#: includes/class-wpb-db-backuper.php:145
+#: includes/class-wpb-db-backuper.php:152
 msgid "Something went wrong while executing \"mysqldump\""
 msgstr "Что-то пошло не так при выполнении \"mysqldump\""
 
-#: includes/class-wpb-db-backuper.php:259
+#: includes/class-wpb-db-backuper.php:266
 msgid "Something went wrong while touch temp file"
 msgstr "Что-то пошло не так во время выполнения \"touсh\" к временному файлу."
 
-#: includes/class-wpb-db-backuper.php:264
+#: includes/class-wpb-db-backuper.php:271
 msgid "Something went wrong while put sql content to temp file"
 msgstr "Что-то пошло не так при записи SQL-строки во временный файл"
 

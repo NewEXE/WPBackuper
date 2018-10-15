@@ -96,6 +96,13 @@ class Wpb_Db_Backuper extends Wpb_Abstract_Backuper {
 		exit(0);
 	}
 
+	/**
+	 * @param string $subject
+	 * @param string $message
+	 * @param string $headers
+	 *
+	 * @return bool
+	 */
 	public function send_backup_to_email($subject = null, $message = null, $headers = null) {
 		$to = get_option(Wpb_Admin::OPTION_BACKUP_EMAIL, Wpb_Helpers::get_user_email());
 

@@ -606,9 +606,10 @@ class Wpb_Helpers
 	public static function safe_wp_get_current_user($property = null, $default = false) {
 		if (
 			function_exists('wp_get_current_user') &&
-			($user = wp_get_current_user()) instanceof WP_User
+			($user = wp_get_current_user()) instanceof WP_User &&
+			! empty($user->ID)
 		) {
-			if ( is_null($property) ) {
+			if ( ! $property ) {
 				return $user;
 			} elseif ( ! empty($user->$property) ) {
 				return $user->$property;
@@ -699,6 +700,15 @@ class Wpb_Helpers
 
 	public static function get_content_dir_path() {
 		return defined('WP_CONTENT_DIR') ? WP_CONTENT_DIR : false;
+	}
+
+	public static function wp_doing_cron() {
+		if ( function_exists('wp_doing_cron') ) {
+			return wp_doing_cron();
+		}
+
+		// Emulate wp_doing_cron() behavior.
+		return apply_filters( 'wp_doing_cron', defined( 'DOING_CRON' ) && DOING_CRON );
 	}
 
 }

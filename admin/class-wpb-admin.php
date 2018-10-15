@@ -154,14 +154,13 @@ class Wpb_Admin {
 		}
 
 		if ( $send_files_to_email xor $send_db_to_email) {
-			$backuper = $send_files_to_email ?
-				Wpb_Abstract_Backuper::get_backuper(Wpb_Abstract_Backuper::FILES) :
-				Wpb_Abstract_Backuper::get_backuper(Wpb_Abstract_Backuper::DB);
+			$backuper_type = $send_files_to_email ? Wpb_Abstract_Backuper::FILES : Wpb_Abstract_Backuper::DB;
 
-			$backuper->make_backup();
-			if ( $backuper->send_backup_to_email() ) {
-				Wpb_Admin_Notices::flash(__('E-mail has been sent.', 'wpb'));
+			$cron = new Wpb_Cron();
+			if ( $cron->send_backup_to_email($backuper_type) ) {
+				Wpb_Admin_Notices::flash(__('E-mail has been sent.', 'wpb'), Wpb_Admin_Notices::TYPE_SUCCESS);
 			}
+
 			wp_redirect(Wpb_Helpers::current_url(false));
 		}
 	}

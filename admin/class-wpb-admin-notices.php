@@ -74,14 +74,17 @@ class Wpb_Admin_Notices {
 	public static function flash() {
 		$args = func_get_args();
 
+		// Get mode
 		if ( count($args) === 0 ) {
 			return Wpb_Helpers::request_var('wpb_flash', false);
-		} elseif ( count($args) === 2 ) {
-			$message = $args[0];
-			$type = self::get_correct_type($args[1]);
-
-			$_REQUEST['wpb_flash'][] = compact('message', 'type');
 		}
+
+		// Set mode
+		$message = $args[0];
+		$type = ! empty($args[1]) ? $args[1] : '';
+		$type = self::get_correct_type($type);
+
+		$_REQUEST['wpb_flash'][] = compact('message', 'type');
 	}
 
 	private static function print_notice($message, $type = self::TYPE_INFO) {

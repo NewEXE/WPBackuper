@@ -21,10 +21,19 @@ abstract class Wpb_Abstract_Backuper {
 
 	abstract public function make_backup();
 
+	/**
+	 * @return void
+	 */
 	abstract public function send_backup_to_browser_and_exit();
 
+	/**
+	 * @return bool
+	 */
 	abstract public function send_backup_to_email();
 
+	/**
+	 * @return WP_Error
+	 */
 	abstract public function get_errors();
 
 	public function download_backup() {
