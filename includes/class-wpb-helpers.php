@@ -697,6 +697,10 @@ class Wpb_Helpers
 		return defined('WP_DEBUG_LOG') && WP_DEBUG_LOG;
 	}
 
+	public static function get_content_dir_path() {
+		return defined('WP_CONTENT_DIR') ? WP_CONTENT_DIR : false;
+	}
+
 }
 
 /**

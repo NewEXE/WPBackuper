@@ -278,6 +278,16 @@ class Wpb_Admin {
 			];
 		}
 
+		if ( $content_dir = Wpb_Helpers::get_content_dir_path() ) {
+			$items[] = [
+				'name'              => __('Log file path', 'wpb'),
+				'hint'              => __('Full path to log file', 'wpb'),
+				'true'              => true,
+				'description_true'  => "$content_dir/debug.log",
+				'description_false' => '',
+			];
+		}
+
 		$view_args = compact('items', 'with_fs_info');
 
 		echo self::render('tab-status', $view_args);

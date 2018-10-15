@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPBackuper 1.0.0\n"
-"POT-Creation-Date: 2018-10-15 16:15+0300\n"
-"PO-Revision-Date: 2018-10-15 16:46+0300\n"
+"POT-Creation-Date: 2018-10-15 17:47+0300\n"
+"PO-Revision-Date: 2018-10-15 17:49+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ru_RU\n"
@@ -168,16 +168,24 @@ msgstr "Папка <b>%s</b> существует и доступна для з�
 msgid "Dir <b>%s</b> is NOT writable"
 msgstr "Папка <b>%s</b> недоступна для записи"
 
-#: admin/class-wpb-admin.php:316 admin/class-wpb-admin.php:327
+#: admin/class-wpb-admin.php:283
+msgid "Log file path"
+msgstr "Путь к лог-файлу"
+
+#: admin/class-wpb-admin.php:284
+msgid "Full path to log file"
+msgstr "Полный путь к лог-файлу"
+
+#: admin/class-wpb-admin.php:326 admin/class-wpb-admin.php:337
 msgid "E-mail to send a backup"
 msgstr "E-mail для отправки резервных копий"
 
-#: admin/class-wpb-admin.php:330
+#: admin/class-wpb-admin.php:340
 #, php-format
 msgid "For example, %1$s"
 msgstr "Например, %1$s"
 
-#: admin/class-wpb-admin.php:446
+#: admin/class-wpb-admin.php:456
 msgid "Enable"
 msgstr "Включить"
 
