@@ -159,7 +159,9 @@ class Wpb_Admin {
 				Wpb_Abstract_Backuper::get_backuper(Wpb_Abstract_Backuper::DB);
 
 			$backuper->make_backup();
-			$backuper->send_backup_to_email();
+			if ( $backuper->send_backup_to_email() ) {
+				Wpb_Admin_Notices::flash(__('E-mail has been sent.', 'wpb'));
+			}
 			wp_redirect(Wpb_Helpers::current_url(false));
 		}
 	}
@@ -267,7 +269,7 @@ class Wpb_Admin {
 
 			$items[] = [
 				'name'              => __('Directory for backups', 'wpb'),
-				'hint'              => 'Full path to temp directory for backups.',
+				'hint'              => __('Full path to temp directory for backups.', 'wpb'),
 				'true'              => Wpb_Helpers::is_temp_dir_writable(),
 				'description_true'  =>
 				/* translators: %s: dir path */
