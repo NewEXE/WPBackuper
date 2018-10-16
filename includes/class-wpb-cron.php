@@ -272,13 +272,12 @@ class Wpb_Cron {
 		}
 
 		$data_type = gettype($data);
-		$datetime = date('Y-m-d H:i:s');
 
 		if ( is_array($data) ) {
 			$data = json_encode($data);
 		} elseif ( is_object($data) ) {
 			$data = print_r($data, true);
-		} elseif (is_resource($data)) {
+		} elseif ( is_resource($data) ) {
 			$data_type .= ' (' . get_resource_type($data) . ')';
 			$data = (string) $data;
 		} elseif ( is_bool($data) ) {
@@ -295,6 +294,7 @@ class Wpb_Cron {
 			$data = 'empty';
 		}
 
+		$datetime = date('Y-m-d H:i:s');
 		$data = "[$datetime] [$data_type] " . $data . PHP_EOL;
 
 		$dir = Wpb_Helpers::path('content');
